@@ -3,25 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carica file</title>
+    <title>Carica File ESP32</title>
+    <!-- Includi la libreria Filestack -->
     <script src="https://static.filestackapi.com/v3/filestack.js"></script>
 </head>
 <body>
-    <h1>Carica il tuo file</h1>
-    
-    <!-- Bottone per avviare il caricamento -->
-    <button id="upload_button">Carica il file</button>
+    <h1>Carica il tuo file da ESP32</h1>
 
+    <!-- Bottone per l'upload del file -->
+    <button id="upload_button">Carica il File</button>
     <div id="status"></div>
 
+    <!-- Aggiungi uno script per gestire l'upload -->
     <script>
-        const client = filestack.init('AV6HwG6hT5i3ZOxCTabJwz'); // Usa la tua API Key
+        const client = filestack.init('AV6HwG6hT5i3ZOxCTabJwz'); // La tua API Key di Filestack
 
+        // Aggiungi un evento al bottone per avviare il caricamento
         document.getElementById('upload_button').addEventListener('click', function() {
             client.pick({
-                accept: ['.bin', '.zip', '.rar'], // Formati accettati
+                accept: ['.bin', '.zip', '.rar'], // Specifica i formati accettati
                 onFileUploadFinished: function(file) {
+                    // Mostra il risultato del caricamento
                     document.getElementById('status').innerText = 'File caricato con successo: ' + file.filename;
+                    console.log('File caricato:', file);
                 }
             });
         });
