@@ -1,40 +1,50 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controlla LED da Blynk</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Controllo ESP32-S3 con Blynk</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      cursor: pointer;
+      margin: 10px;
+    }
+    #status {
+      margin-top: 20px;
+      font-size: 20px;
+    }
+  </style>
+  <script>
+    const AUTH_TOKEN = "grYpUsFvzBxM6U0F_N1HM-_sub0_Ffhu"; // Sostituisci con il tuo token Blynk
+    const API_URL = `https://blynk.cloud/external/api/update?token=${AUTH_TOKEN}&`;
+
+    function toggleLED(state) {
+      const ledState = state ? "V2=1" : "V2=0";
+      fetch(API_URL + ledState)
+        .then(response => {
+          if (response.ok) {
+            document.getElementById("status").innerText = `LED ${state ? "ACCESO" : "SPENTO"}`;
+          } else {
+            document.getElementById("status").innerText = "Errore nella connessione!";
+          }
+        })
+        .catch(() => {
+          document.getElementById("status").innerText = "Errore nella connessione!";
+        });
+    }
+  </script>
 </head>
 <body>
-    <h1>Controlla il tuo LED con Blynk</h1>
-
-    <!-- Switch virtuale per accendere/spegnere il LED -->
-    <label for="virtualSwitch">LED (Controllo tramite Blynk):</label>
-    <input type="checkbox" id="virtualSwitch" onchange="sendDataToBlynk(this.checked)">
-    <p id="response"></p>
-
-    <script>
-        // Token di autenticazione Blynk
-        const BLYNK_AUTH_TOKEN = "grYpUsFvzBxM6U0F_N1HM-_sub0_Ffhu";  // Sostituisci con il tuo token
-        const pin = 'V1';  // Pin virtuale per il controllo del LED (assumiamo V1)
-
-        // Funzione per inviare i dati a Blynk (Accendere/Spegnere il LED)
-        function sendDataToBlynk(checked) {
-            const value = checked ? 255 : 0;  // Se checked è vero, accende il LED (255), altrimenti lo spegne (0)
-            
-            // Costruisci l'URL per inviare i dati
-            const url = `https://blynk.cloud/external/api/update/${pin}?value=${value}&token=${BLYNK_AUTH_TOKEN}`;
-
-            // Esegui la richiesta fetch per inviare i dati
-            fetch(url)
-                .then(response => response.ok ? response.text() : Promise.reject('Errore nella richiesta'))
-                .then(data => {
-                    document.getElementById('response').innerText = "Comando inviato con successo!";
-                })
-                .catch(error => {
-                    document.getElementById('response').innerText = `Errore: ${error}`;
-                });
-        }
-    </script>
+  <h1>Controllo LED ESP32-S3</h1>
+  <button onclick="toggleLED(true)">Accendi LED</button>
+  <button onclick="toggleLED(false)">Spegni LED</button>
+  <div id="status">Stato LED: Non aggiornato</div>
 </body>
 </html>
