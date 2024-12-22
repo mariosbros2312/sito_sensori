@@ -3,51 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Pagina di Prova</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f9;
-            color: #333;
-        }
-        header {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 0;
-            text-align: center;
-        }
-        main {
-            padding: 20px;
-        }
-        footer {
-            background-color: #333;
-            color: white;
-            text-align: center;
-            padding: 10px 0;
-            position: fixed;
-            width: 100%;
-            bottom: 0;
-        }
-    </style>
+    <title>Controllo Blynk con API REST</title>
 </head>
 <body>
+    <h1>Controlla il tuo dispositivo Blynk</h1>
 
-    <header>
-        <h1>Benvenuto nella Pagina di Prova</h1>
-    </header>
+    <label for="pinValue">Valore da inviare al pin V1:</label>
+    <input type="number" id="pinValue" placeholder="Inserisci valore">
+    <button onclick="sendDataToBlynk()">Invia</button>
 
-    <main>
-        <h2>Cosa c'è in questa pagina?</h2>
-        <p>Questa è una semplice pagina HTML con un layout di base.</p>
-        <p>Puoi aggiungere testo, immagini, link, e tanto altro!</p>
-    </main>
+    <p id="response"></p>
 
-    <footer>
-        <p>&copy; 2024 Pagina di Prova</p>
-    </footer>
+    <script>
+        function sendDataToBlynk() {
+            // Ottieni il valore dall'input
+            const value = document.getElementById('pinValue').value;
+            const token = 'YOUR_BLYNK_AUTH_TOKEN';  // Sostituisci con il tuo token
+            const pin = 'V1';  // Pin virtuale a cui inviare il dato
 
+            if (value === '') {
+                document.getElementById('response').innerText = "Per favore, inserisci un valore!";
+                return;
+            }
+
+            // Costruisci l'URL per la richiesta API
+            const url = `https://blynk.cloud/external/api/update/${pin}?value=${value}&token=${token}`;
+
+            // Invia la richiesta con Fetch API
+            fetch(url)
+                .then(response => {
+                    if (response.ok) {
+                        return response.text();
+                    } else {
+                        throw new Error('Errore nella richiesta');
+                    }
+                })
+                .then(data => {
+                    document.getElementById('response').innerText = "Valore inviato con successo!";
+                })
+                .catch(error => {
+                    document.getElementById('response').innerText = `Errore: ${error.message}`;
+                });
+        }
+    </script>
 </body>
 </html>
+
