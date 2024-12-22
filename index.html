@@ -1,44 +1,44 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Controllo LED con Blynk</title>
-  <script>
-    const PROXY_URL = "https://cors-anywhere.herokuapp.com/";  // URL del proxy
-    const API_URL = "https://blynk.cloud/external/api/update?token=grYpUsFvzBxM6U0F_N1HM-_sub0_Ffhu&";  // URL API Blynk
-
-    async function toggleLED(state) {
-      const ledState = `V2=${state ? 1 : 0}`;  // Crea il parametro per il virtual pin
-      try {
-        // Usa il proxy per fare la richiesta
-        const response = await fetch(PROXY_URL + API_URL + ledState, {
-          method: 'GET',  // Metodo di richiesta GET
-          mode: 'cors',   // Modalità CORS
-          headers: {
-            'Content-Type': 'application/json',  // Tipo di contenuto
-          },
-        });
-
-        // Verifica la risposta
-        if (response.ok) {
-          document.getElementById("status").innerText = `LED ${state ? "ACCESO" : "SPENTO"}`;
-        } else {
-          const errorText = await response.text();
-          console.error("Errore nella risposta:", errorText);
-          document.getElementById("status").innerText = "Errore nella richiesta!";
-        }
-      } catch (error) {
-        console.error("Errore nella connessione:", error);
-        document.getElementById("status").innerText = "Errore nella connessione!";
-      }
-    }
-  </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carica Firmware OTA</title>
 </head>
 <body>
-  <h1>Controllo LED con Blynk</h1>
-  <button onclick="toggleLED(true)">Accendi LED</button>
-  <button onclick="toggleLED(false)">Spegni LED</button>
-  <p id="status">Stato LED: Non impostato</p>
+    <h1>Carica il firmware del dispositivo ESP32</h1>
+    
+    <form id="uploadForm" enctype="multipart/form-data">
+        <label for="firmware">Seleziona il file firmware (.bin):</label><br><br>
+        <input type="file" name="firmware" id="firmware" accept=".bin" required><br><br>
+        <button type="submit">Carica</button>
+    </form>
+
+    <div id="status"></div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            // Crea un oggetto FormData
+            const formData = new FormData();
+            const fileInput = document.getElementById('firmware');
+            formData.append('firmware', fileInput.files[0]);
+
+            // Invia la richiesta POST al server per caricare il firmware
+            fetch('/upload-firmware', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(result => {
+                document.getElementById('status').innerText = result;
+            })
+            .catch(error => {
+                document.getElementById('status').innerText = 'Errore durante il caricamento del firmware: ' + error;
+            });
+        });
+    </script>
 </body>
 </html>
+
