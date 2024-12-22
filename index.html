@@ -3,49 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controllo Blynk con API REST</title>
+    <title>Controllo Dispositivo Blynk</title>
 </head>
 <body>
-    <h1>Controlla il tuo dispositivo Blynk</h1>
+    <h1>Controllo e Monitoraggio Blynk</h1>
 
-    <label for="pinValue">Valore da inviare al pin V1:</label>
-    <input type="number" id="pinValue" placeholder="Inserisci valore">
-    <button onclick="sendDataToBlynk()">Invia</button>
+    <!-- Form per inviare dati a Blynk -->
+    <label for="pinValue">Accendi il LED (Inserisci 255 per accendere e 0 per spegnere):</label>
+    <input type="number" id="pinValue" placeholder="Inserisci valore (0 o 255)">
+    <button onclick="sendDataToBlynk()">Invia al Pin V1</button>
 
     <p id="response"></p>
 
-    <script>
-        function sendDataToBlynk() {
-            // Ottieni il valore dall'input
-            const value = document.getElementById('pinValue').value;
-            const token = 'grYpUsFvzBxM6U0F_N1HM-_sub0_Ffhu';  // Sostituisci con il tuo token
-            const pin = 'V1';  // Pin virtuale a cui inviare il dato
+    <!-- Pulsante per leggere i dati dal sensore -->
+    <button onclick="getDataFromBlynk()">Leggi Dati dal Sensore</button>
+    <p id="sensorValue">Dati del sensore: </p>
 
+    <script>
+        // Token di autenticazione Blynk
+        const BLYNK_AUTH_TOKEN = "grYpUsFvzBxM6U0F_N1HM-_sub0_Ffhu"; // Usa il tuo token qui
+        const pin = 'V1';  // Pin virtuale
+
+        // Funzione per inviare il comando a Blynk
+        function sendDataToBlynk() {
+            const value = document.getElementById('pinValue').value;
+            
             if (value === '') {
                 document.getElementById('response').innerText = "Per favore, inserisci un valore!";
                 return;
             }
 
-            // Costruisci l'URL per la richiesta API
-            const url = `https://blynk.cloud/external/api/update/${pin}?value=${value}&token=${token}`;
+            // Costruisci l'URL per inviare i dati
+            const url = `https://blynk.cloud/external/api/update/${pin}?value=${value}&token=${BLYNK_AUTH_TOKEN}`;
 
-            // Invia la richiesta con Fetch API
+            // Esegui la richiesta fetch per inviare i dati
             fetch(url)
-                .then(response => {
-                    if (response.ok) {
-                        return response.text();
-                    } else {
-                        throw new Error('Errore nella richiesta');
-                    }
-                })
+                .then(response => response.ok ? response.text() : Promise.reject('Errore nella richiesta'))
                 .then(data => {
-                    document.getElementById('response').innerText = "Valore inviato con successo!";
+                    document.getElementById('response').innerText = "Comando inviato con successo!";
                 })
                 .catch(error => {
-                    document.getElementById('response').innerText = `Errore: ${error.message}`;
+                    document.getElementById('response').innerText = `Errore: ${error}`;
+                });
+        }
+
+        // Funzione per leggere i dati dal sensore
+        function getDataFromBlynk() {
+            // Costruisci l'URL per leggere i dati
+            const url = `https://blynk.cloud/external/api/get/${pin}?token=${BLYNK_AUTH_TOKEN}`;
+
+            // Esegui la richiesta fetch per ottenere i dati
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('sensorValue').innerText = `Dati del sensore: ${data[0]}`;
+                })
+                .catch(error => {
+                    document.getElementById('sensorValue').innerText = `Errore: ${error.message}`;
                 });
         }
     </script>
 </body>
 </html>
-
