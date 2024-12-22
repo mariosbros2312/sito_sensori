@@ -5,19 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Controllo LED con Blynk</title>
   <script>
-    const API_URL = "https://blynk.cloud/external/api/update?token=grYpUsFvzBxM6U0F_N1HM-_sub0_Ffhu&";
+    const PROXY_URL = "https://cors-anywhere.herokuapp.com/";  // URL del proxy
+    const API_URL = "https://blynk.cloud/external/api/update?token=grYpUsFvzBxM6U0F_N1HM-_sub0_Ffhu&";  // URL API Blynk
 
     async function toggleLED(state) {
-      const ledState = `V2=${state ? 1 : 0}`;
+      const ledState = `V2=${state ? 1 : 0}`;  // Crea il parametro per il virtual pin
       try {
-        const response = await fetch(API_URL + ledState, {
-          method: 'GET',
-          mode: 'cors',
+        // Usa il proxy per fare la richiesta
+        const response = await fetch(PROXY_URL + API_URL + ledState, {
+          method: 'GET',  // Metodo di richiesta GET
+          mode: 'cors',   // Modalità CORS
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json',  // Tipo di contenuto
           },
         });
 
+        // Verifica la risposta
         if (response.ok) {
           document.getElementById("status").innerText = `LED ${state ? "ACCESO" : "SPENTO"}`;
         } else {
