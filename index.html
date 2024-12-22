@@ -3,39 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carica Firmware OTA</title>
+    <title>Carica file</title>
+    <script src="https://static.filestackapi.com/v3/filestack.js"></script>
 </head>
 <body>
-    <h1>Carica il firmware del dispositivo ESP32</h1>
+    <h1>Carica il tuo file</h1>
     
-    <form id="uploadForm" enctype="multipart/form-data">
-        <label for="firmware">Seleziona il file firmware (.bin):</label><br><br>
-        <input type="file" name="firmware" id="firmware" accept=".bin" required><br><br>
-        <button type="submit">Carica</button>
-    </form>
+    <!-- Bottone per avviare il caricamento -->
+    <button id="upload_button">Carica il file</button>
 
     <div id="status"></div>
 
     <script>
-        document.getElementById('uploadForm').addEventListener('submit', function(event) {
-            event.preventDefault();
+        const client = filestack.init('AV6HwG6hT5i3ZOxCTabJwz'); // Usa la tua API Key
 
-            // Crea un oggetto FormData
-            const formData = new FormData();
-            const fileInput = document.getElementById('firmware');
-            formData.append('firmware', fileInput.files[0]);
-
-            // Invia la richiesta POST al server per caricare il firmware
-            fetch('/upload-firmware', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.text())
-            .then(result => {
-                document.getElementById('status').innerText = result;
-            })
-            .catch(error => {
-                document.getElementById('status').innerText = 'Errore durante il caricamento del firmware: ' + error;
+        document.getElementById('upload_button').addEventListener('click', function() {
+            client.pick({
+                accept: ['.bin', '.zip', '.rar'], // Formati accettati
+                onFileUploadFinished: function(file) {
+                    document.getElementById('status').innerText = 'File caricato con successo: ' + file.filename;
+                }
             });
         });
     </script>
