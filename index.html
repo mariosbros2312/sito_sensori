@@ -1,50 +1,41 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Controllo ESP32-S3 con Blynk</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin-top: 50px;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 18px;
-      cursor: pointer;
-      margin: 10px;
-    }
-    #status {
-      margin-top: 20px;
-      font-size: 20px;
-    }
-  </style>
+  <title>Controllo LED con Blynk</title>
   <script>
-    const AUTH_TOKEN = "grYpUsFvzBxM6U0F_N1HM-_sub0_Ffhu"; // Sostituisci con il tuo token Blynk
-    const API_URL = `https://blynk.cloud/external/api/update?token=${AUTH_TOKEN}&`;
+    const API_URL = "https://blynk.cloud/external/api/update?token=grYpUsFvzBxM6U0F_N1HM-_sub0_Ffhu&";
 
-    function toggleLED(state) {
-      const ledState = state ? "V2=1" : "V2=0";
-      fetch(API_URL + ledState)
-        .then(response => {
-          if (response.ok) {
-            document.getElementById("status").innerText = `LED ${state ? "ACCESO" : "SPENTO"}`;
-          } else {
-            document.getElementById("status").innerText = "Errore nella connessione!";
-          }
-        })
-        .catch(() => {
-          document.getElementById("status").innerText = "Errore nella connessione!";
+    async function toggleLED(state) {
+      const ledState = `V2=${state ? 1 : 0}`;
+      try {
+        const response = await fetch(API_URL + ledState, {
+          method: 'GET',
+          mode: 'cors',
+          headers: {
+            'Content-Type': 'application/json',
+          },
         });
+
+        if (response.ok) {
+          document.getElementById("status").innerText = `LED ${state ? "ACCESO" : "SPENTO"}`;
+        } else {
+          const errorText = await response.text();
+          console.error("Errore nella risposta:", errorText);
+          document.getElementById("status").innerText = "Errore nella richiesta!";
+        }
+      } catch (error) {
+        console.error("Errore nella connessione:", error);
+        document.getElementById("status").innerText = "Errore nella connessione!";
+      }
     }
   </script>
 </head>
 <body>
-  <h1>Controllo LED ESP32-S3</h1>
+  <h1>Controllo LED con Blynk</h1>
   <button onclick="toggleLED(true)">Accendi LED</button>
   <button onclick="toggleLED(false)">Spegni LED</button>
-  <div id="status">Stato LED: Non aggiornato</div>
+  <p id="status">Stato LED: Non impostato</p>
 </body>
 </html>
