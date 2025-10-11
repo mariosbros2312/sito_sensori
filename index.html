@@ -1,45 +1,39 @@
-document.addEventListener('DOMContentLoaded', function() {
-    const productIcon = document.getElementById('productIcon');
-    const productImage = document.querySelector('.product-image');
-    
-    // Funzione per reindirizzare a GialloZafferano
-    function redirectToGialloZafferano() {
-        window.open('https://www.giallozafferano.it', '_blank');
-    }
-    
-    // Aggiungi event listener all'icona
-    productIcon.addEventListener('click', function(e) {
-        e.stopPropagation(); // Previene la propagazione all'immagine
-        redirectToGialloZafferano();
-    });
-    
-    // Aggiungi event listener all'intera immagine del prodotto (opzionale)
-    productImage.addEventListener('click', function() {
-        redirectToGialloZafferano();
-    });
-    
-    // Aggiungi effetto di animazione al click
-    productIcon.addEventListener('mousedown', function() {
-        this.style.transform = 'scale(0.95)';
-    });
-    
-    productIcon.addEventListener('mouseup', function() {
-        this.style.transform = 'scale(1.1)';
-    });
-    
-    // Animazione di ingresso
-    gsap.from('.product-card', {
-        duration: 1,
-        y: 50,
-        opacity: 0,
-        ease: "power3.out"
-    });
-    
-    gsap.from('.recipe-link', {
-        duration: 1,
-        y: 30,
-        opacity: 0,
-        delay: 0.3,
-        ease: "power3.out"
-    });
-});
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prodotto Amazon - GialloZafferano</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="product-card">
+            <div class="product-image">
+                <img src="https://via.placeholder.com/300x300" alt="Prodotto Amazon" class="main-image">
+                <div class="product-icon" id="productIcon">
+                    <span class="icon">🔍</span>
+                </div>
+            </div>
+            <div class="product-info">
+                <h2 class="product-title">Robot da Cucina Multifunzione</h2>
+                <p class="product-description">
+                    Robot da cucina professionale con 15 funzioni, perfetto per preparare 
+                    le tue ricette preferite seguendo GialloZafferano!
+                </p>
+                <div class="price">€ 129,99</div>
+                <div class="amazon-badge">Amazon's Choice</div>
+            </div>
+        </div>
+        
+        <div class="recipe-link">
+            <p>Scopri ricette incredibili su:</p>
+            <a href="https://www.giallozafferano.it" target="_blank" class="gz-link">
+                GialloZafferano.it
+            </a>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
