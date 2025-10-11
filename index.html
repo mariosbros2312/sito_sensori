@@ -1,17 +1,45 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iframe Example</title>
-</head>
-<body>
-    <h1>Gráfico de Mejor Batería</h1>
-    <p>A continuación se muestra el gráfico:</p>
-    <iframe src="http://localhost:3000/api/hassio_ingress/NHDqNpf0VuKiyxLnUadcJ8kxThmzAZL-eL4hrcXk37Q/d-solo/fe8jy5ig0jr40e/migliore-batteria-grafico?orgId=1&from=1735604811658&to=1735626411658&timezone=browser&panelId=1&__feature.dashboardSceneSolo" 
-            width="450" 
-            height="200" 
-            frameborder="0">
-    </iframe>
-</body>
-</html>
+document.addEventListener('DOMContentLoaded', function() {
+    const productIcon = document.getElementById('productIcon');
+    const productImage = document.querySelector('.product-image');
+    
+    // Funzione per reindirizzare a GialloZafferano
+    function redirectToGialloZafferano() {
+        window.open('https://www.giallozafferano.it', '_blank');
+    }
+    
+    // Aggiungi event listener all'icona
+    productIcon.addEventListener('click', function(e) {
+        e.stopPropagation(); // Previene la propagazione all'immagine
+        redirectToGialloZafferano();
+    });
+    
+    // Aggiungi event listener all'intera immagine del prodotto (opzionale)
+    productImage.addEventListener('click', function() {
+        redirectToGialloZafferano();
+    });
+    
+    // Aggiungi effetto di animazione al click
+    productIcon.addEventListener('mousedown', function() {
+        this.style.transform = 'scale(0.95)';
+    });
+    
+    productIcon.addEventListener('mouseup', function() {
+        this.style.transform = 'scale(1.1)';
+    });
+    
+    // Animazione di ingresso
+    gsap.from('.product-card', {
+        duration: 1,
+        y: 50,
+        opacity: 0,
+        ease: "power3.out"
+    });
+    
+    gsap.from('.recipe-link', {
+        duration: 1,
+        y: 30,
+        opacity: 0,
+        delay: 0.3,
+        ease: "power3.out"
+    });
+});
