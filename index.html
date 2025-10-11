@@ -3,37 +3,469 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prodotto Amazon - GialloZafferano</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Top 10 Prodotti Giardinaggio Amazon</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5fbf9;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        header {
+            background: linear-gradient(to right, #2e8b57, #3cb371);
+            color: white;
+            text-align: center;
+            padding: 2rem 1rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .intro {
+            text-align: center;
+            padding: 2rem 1rem;
+            margin-bottom: 20px;
+        }
+        
+        .intro p {
+            max-width: 800px;
+            margin: 0 auto 1.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .product-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        }
+        
+        .product-number {
+            background-color: #3cb371;
+            color: white;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-weight: bold;
+            position: absolute;
+            top: -15px;
+            left: -15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .product-img {
+            height: 200px;
+            background-color: #f1f9f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .product-img i {
+            font-size: 80px;
+            color: #2e8b57;
+        }
+        
+        .product-content {
+            padding: 20px;
+        }
+        
+        .product-title {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: #2c6e4b;
+        }
+        
+        .product-description {
+            color: #555;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+        
+        .product-price {
+            font-weight: bold;
+            color: #2e8b57;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: #3cb371;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        
+        .btn:hover {
+            background-color: #2e8b57;
+        }
+        
+        .rating {
+            color: #f9a825;
+            margin-bottom: 10px;
+        }
+        
+        .features {
+            background-color: #e8f5ee;
+            padding: 3rem 1rem;
+            margin: 40px 0;
+        }
+        
+        .features h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #2e8b57;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .feature-item {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .feature-item i {
+            font-size: 2.5rem;
+            color: #3cb371;
+            margin-bottom: 15px;
+        }
+        
+        footer {
+            background-color: #2c6e4b;
+            color: white;
+            text-align: center;
+            padding: 2rem 1rem;
+            margin-top: 40px;
+        }
+        
+        @media (max-width: 768px) {
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <div class="product-card">
-            <div class="product-image">
-                <img src="https://via.placeholder.com/300x300" alt="Prodotto Amazon" class="main-image">
-                <div class="product-icon" id="productIcon">
-                    <span class="icon">🔍</span>
+    <header>
+        <div class="container">
+            <h1>I 10 Prodotti di Giardinaggio Più Acquistati su Amazon</h1>
+            <p class="subtitle">Scopri i bestseller che stanno rivoluzionando il modo di curare giardini e piante</p>
+        </div>
+    </header>
+    
+    <section class="intro">
+        <div class="container">
+            <p>Sei un appassionato di giardinaggio alla ricerca dei prodotti migliori? Abbiamo selezionato per te i 10 articoli più acquistati su Amazon nella categoria Giardinaggio. Questi prodotti hanno conquistato la fiducia di migliaia di clienti grazie alla loro qualità, efficacia e rapporto qualità-prezzo.</p>
+        </div>
+    </section>
+    
+    <section class="container">
+        <div class="products-grid">
+            <!-- Prodotto 1 -->
+            <div class="product-card">
+                <div class="product-img">
+                    <div class="product-number">1</div>
+                    <i class="fas fa-seedling"></i>
+                </div>
+                <div class="product-content">
+                    <h3 class="product-title">Kit per Giardinaggio con 15 Attrezzi</h3>
+                    <div class="rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                        <span>(4,582 recensioni)</span>
+                    </div>
+                    <p class="product-description">Set completo con guanti, rastrello, zappa e tutti gli attrezzi necessari per il giardinaggio.</p>
+                    <p class="product-price">€39,99</p>
+                    <a href="#" class="btn">Vedi su Amazon</a>
                 </div>
             </div>
-            <div class="product-info">
-                <h2 class="product-title">Robot da Cucina Multifunzione</h2>
-                <p class="product-description">
-                    Robot da cucina professionale con 15 funzioni, perfetto per preparare 
-                    le tue ricette preferite seguendo GialloZafferano!
-                </p>
-                <div class="price">€ 129,99</div>
-                <div class="amazon-badge">Amazon's Choice</div>
+            
+            <!-- Prodotto 2 -->
+            <div class="product-card">
+                <div class="product-img">
+                    <div class="product-number">2</div>
+                    <i class="fas fa-tint"></i>
+                </div>
+                <div class="product-content">
+                    <h3 class="product-title">Irrigatore Automatico per Giardino</h3>
+                    <div class="rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <span>(3,927 recensioni)</span>
+                    </div>
+                    <p class="product-description">Sistema di irrigazione programmabile con timer, perfetto per mantenere il giardino sempre irrigato.</p>
+                    <p class="product-price">€29,99</p>
+                    <a href="#" class="btn">Vedi su Amazon</a>
+                </div>
+            </div>
+            
+            <!-- Prodotto 3 -->
+            <div class="product-card">
+                <div class="product-img">
+                    <div class="product-number">3</div>
+                    <i class="fas fa-spray-can"></i>
+                </div>
+                <div class="product-content">
+                    <h3 class="product-title">Concime Universale Bio</h3>
+                    <div class="rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <span>(5,241 recensioni)</span>
+                    </div>
+                    <p class="product-description">Fertilizzante naturale adatto a tutte le piante, favorisce una crescita sana e rigogliosa.</p>
+                    <p class="product-price">€15,50</p>
+                    <a href="#" class="btn">Vedi su Amazon</a>
+                </div>
+            </div>
+            
+            <!-- Prodotto 4 -->
+            <div class="product-card">
+                <div class="product-img">
+                    <div class="product-number">4</div>
+                    <i class="fas fa-leaf"></i>
+                </div>
+                <div class="product-content">
+                    <h3 class="product-title">Terriccio Universale di Alta Qualità</h3>
+                    <div class="rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                        <span>(7,356 recensioni)</span>
+                    </div>
+                    <p class="product-description">Substrato di prima qualità con nutrienti essenziali per vasi, orti e giardini.</p>
+                    <p class="product-price">€12,90</p>
+                    <a href="#" class="btn">Vedi su Amazon</a>
+                </div>
+            </div>
+            
+            <!-- Prodotto 5 -->
+            <div class="product-card">
+                <div class="product-img">
+                    <div class="product-number">5</div>
+                    <i class="fas fa-tree"></i>
+                </div>
+                <div class="product-content">
+                    <h3 class="product-title">Set di 3 Attrezzi da Giardinaggio con Impugnatura Ergonomica</h3>
+                    <div class="rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <span>(2,843 recensioni)</span>
+                    </div>
+                    <p class="product-description">Paletta, rastrello e zappa con manici comodi e resistenti all'usura.</p>
+                    <p class="product-price">€19,99</p>
+                    <a href="#" class="btn">Vedi su Amazon</a>
+                </div>
+            </div>
+            
+            <!-- Prodotto 6 -->
+            <div class="product-card">
+                <div class="product-img">
+                    <div class="product-number">6</div>
+                    <i class="fas fa-box-open"></i>
+                </div>
+                <div class="product-content">
+                    <h3 class="product-title">Kit per Coltivazione Indoor con Luce LED</h3>
+                    <div class="rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                        <span>(1,957 recensioni)</span>
+                    </div>
+                    <p class="product-description">Sistema completo per coltivare piante e erbe aromatiche in casa tutto l'anno.</p>
+                    <p class="product-price">€89,99</p>
+                    <a href="#" class="btn">Vedi su Amazon</a>
+                </div>
+            </div>
+            
+            <!-- Prodotto 7 -->
+            <div class="product-card">
+                <div class="product-img">
+                    <div class="product-number">7</div>
+                    <i class="fas fa-cut"></i>
+                </div>
+                <div class="product-content">
+                    <h3 class="product-title">Cesoie da Potatura Professionali</h3>
+                    <div class="rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <span>(4,672 recensioni)</span>
+                    </div>
+                    <p class="product-description">Forbici da giardinaggio con lame in acciaio temperato e impugnatura antiscivolo.</p>
+                    <p class="product-price">€24,90</p>
+                    <a href="#" class="btn">Vedi su Amazon</a>
+                </div>
+            </div>
+            
+            <!-- Prodotto 8 -->
+            <div class="product-card">
+                <div class="product-img">
+                    <div class="product-number">8</div>
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="product-content">
+                    <h3 class="product-title">Insecticide Naturale per Piante</h3>
+                    <div class="rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                        <span>(3,125 recensioni)</span>
+                    </div>
+                    <p class="product-description">Prodotto biologico per eliminare parassiti e proteggere le tue piante senza chemical aggressivi.</p>
+                    <p class="product-price">€18,50</p>
+                    <a href="#" class="btn">Vedi su Amazon</a>
+                </div>
+            </div>
+            
+            <!-- Prodotto 9 -->
+            <div class="product-card">
+                <div class="product-img">
+                    <div class="product-number">9</div>
+                    <i class="fas fa-toolbox"></i>
+                </div>
+                <div class="product-content">
+                    <h3 class="product-title">Carriola da Giardino Resistente</h3>
+                    <div class="rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <span>(2,458 recensioni)</span>
+                    </div>
+                    <p class="product-description">Carriola professionale con struttura rinforzata e capacità di carico fino a 100 kg.</p>
+                    <p class="product-price">€59,99</p>
+                    <a href="#" class="btn">Vedi su Amazon</a>
+                </div>
+            </div>
+            
+            <!-- Prodotto 10 -->
+            <div class="product-card">
+                <div class="product-img">
+                    <div class="product-number">10</div>
+                    <i class="fas fa-tint-slash"></i>
+                </div>
+                <div class="product-content">
+                    <h3 class="product-title">Telo per Pacciamatura Resistente</h3>
+                    <div class="rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                        <span>(1,789 recensioni)</span>
+                    </div>
+                    <p class="product-description">Tessuto pacciamante per controllo delle erbacce e protezione del terreno.</p>
+                    <p class="product-price">€22,90</p>
+                    <a href="#" class="btn">Vedi su Amazon</a>
+                </div>
             </div>
         </div>
-        
-        <div class="recipe-link">
-            <p>Scopri ricette incredibili su:</p>
-            <a href="https://www.giallozafferano.it" target="_blank" class="gz-link">
-                GialloZafferano.it
-            </a>
+    </section>
+    
+    <section class="features">
+        <h2>Perché Scegliere Questi Prodotti</h2>
+        <div class="features-grid">
+            <div class="feature-item">
+                <i class="fas fa-award"></i>
+                <h3>Qualità Verificata</h3>
+                <p>Prodotti selezionati in base alle recensioni e valutazioni dei clienti Amazon</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-shipping-fast"></i>
+                <h3>Consegna Rapida</h3>
+                <p>Spedizione Prime disponibile per la maggior parte dei prodotti</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-undo"></i>
+                <h3>Facile Reso</h3>
+                <p>Politica di reso senza problemi entro 30 giorni dall'acquisto</p>
+            </div>
         </div>
-    </div>
-
-    <script src="script.js"></script>
+    </section>
+    
+    <footer>
+        <div class="container">
+            <p>Nota: questa pagina è a solo scopo illustrativo. I prodotti mostrati sono una rappresentazione dei generi più acquistati su Amazon.</p>
+            <p>© 2023 - Tutti i diritti riservati</p>
+        </div>
+    </footer>
 </body>
 </html>
