@@ -1,48 +1,45 @@
-// Funzione per inviare dati al server
-function sendData(data) {
-    fetch('http://tuo-backend-endpoint.com/api/data', {
-        method: 'POST', // Metodo HTTP per inviare i dati
-        headers: {
-            'Content-Type': 'application/json', // Indica che i dati sono in formato JSON
-        },
-        body: JSON.stringify(data), // Converte l'oggetto in formato JSON
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log('Success:', data); // Mostra la risposta del server
-    })
-    .catch(error => {
-        console.error('Error:', error); // Mostra eventuali errori
+document.addEventListener('DOMContentLoaded', function() {
+    const productIcon = document.getElementById('productIcon');
+    const productImage = document.querySelector('.product-image');
+    
+    // Funzione per reindirizzare a GialloZafferano
+    function redirectToGialloZafferano() {
+        window.open('https://www.giallozafferano.it', '_blank');
+    }
+    
+    // Aggiungi event listener all'icona
+    productIcon.addEventListener('click', function(e) {
+        e.stopPropagation(); // Previene la propagazione all'immagine
+        redirectToGialloZafferano();
     });
-}
-
-// Funzione per ottenere dati dal server
-function getData() {
-    fetch('http://tuo-backend-endpoint.com/api/data', {
-        method: 'GET', // Metodo HTTP per ottenere i dati
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Data received:', data); // Mostra i dati ricevuti dal server
-    })
-    .catch(error => {
-        console.error('Error:', error); // Mostra eventuali errori
+    
+    // Aggiungi event listener all'intera immagine del prodotto (opzionale)
+    productImage.addEventListener('click', function() {
+        redirectToGialloZafferano();
     });
-}
-
-// Esempio di invio di dati al server
-const sampleData = {
-    name: 'John Doe',
-    age: 30,
-    email: 'john.doe@example.com'
-};
-
-sendData(sampleData);
-
-// Esempio di richiesta di dati dal server
-getData();
+    
+    // Aggiungi effetto di animazione al click
+    productIcon.addEventListener('mousedown', function() {
+        this.style.transform = 'scale(0.95)';
+    });
+    
+    productIcon.addEventListener('mouseup', function() {
+        this.style.transform = 'scale(1.1)';
+    });
+    
+    // Animazione di ingresso
+    gsap.from('.product-card', {
+        duration: 1,
+        y: 50,
+        opacity: 0,
+        ease: "power3.out"
+    });
+    
+    gsap.from('.recipe-link', {
+        duration: 1,
+        y: 30,
+        opacity: 0,
+        delay: 0.3,
+        ease: "power3.out"
+    });
+});
