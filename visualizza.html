@@ -3,158 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visualizzatore Eventi</title>
+    <title>Debug Visualizzatore Eventi</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #333;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .controls {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        button {
-            padding: 10px 20px;
-            background: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        button:hover {
-            background: #0056b3;
-        }
-        button:disabled {
-            background: #6c757d;
-            cursor: not-allowed;
-        }
-        .stats {
-            background: #e9ecef;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background-color: #f8f9fa;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        th:hover {
-            background-color: #e9ecef;
-        }
-        tr:hover {
-            background-color: #f8f9fa;
-        }
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: #6c757d;
-        }
-        .error {
-            background: #f8d7da;
-            color: #721c24;
-            padding: 15px;
-            border-radius: 5px;
-            margin: 10px 0;
-        }
-        .empty {
-            text-align: center;
-            padding: 40px;
-            color: #6c757d;
-            font-style: italic;
-        }
-        .timestamp {
-            font-size: 0.9em;
-            color: #6c757d;
-        }
-        .search-box {
-            flex-grow: 1;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        @media (max-width: 768px) {
-            .controls {
-                flex-direction: column;
-            }
-            .search-box {
-                width: 100%;
-            }
-            table {
-                font-size: 14px;
-            }
-            th, td {
-                padding: 8px 4px;
-            }
-        }
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        button { padding: 10px 15px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #f8f9fa; }
+        .success { background: #d4edda; color: #155724; padding: 10px; border-radius: 5px; }
+        .error { background: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; }
+        .info { background: #d1ecf1; color: #0c5460; padding: 10px; border-radius: 5px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📊 Visualizzatore Eventi</h1>
+        <h1>🔧 Debug Visualizzatore Eventi</h1>
         
-        <div class="controls">
-            <input type="text" id="searchInput" class="search-box" placeholder="Cerca nei dati...">
-            <button onclick="caricaEventi()">🔄 Aggiorna</button>
-            <button onclick="ordinaPerData()">📅 Ordina per Data</button>
-            <button onclick="ordinaPerID()">🔢 Ordina per ID</button>
-            <button onclick="esportaCSV()">📥 Esporta CSV</button>
+        <div class="card">
+            <h3>1. Test Connessione Supabase</h3>
+            <button onclick="testConnessione()">Test Connessione</button>
+            <div id="testResult"></div>
         </div>
 
-        <div class="stats">
-            <div><strong>Totale eventi:</strong> <span id="totalCount">0</span></div>
-            <div><strong>Ultimo aggiornamento:</strong> <span id="lastUpdate">-</span></div>
-            <div><strong>Stato:</strong> <span id="status">Pronto</span></div>
+        <div class="card">
+            <h3>2. Carica Eventi</h3>
+            <button onclick="caricaEventi()">Carica Eventi</button>
+            <div id="caricaResult"></div>
         </div>
 
-        <div id="tabellaContainer">
-            <div class="loading" id="loadingMessage">🔄 Caricamento eventi in corso...</div>
-            <div id="errorMessage" class="error" style="display: none;"></div>
-            <div id="emptyMessage" class="empty" style="display: none;">Nessun evento trovato</div>
-            
-            <table id="tabellaEventi" style="display: none;">
-                <thead>
-                    <tr>
-                        <th onclick="ordinaPerID()">ID ▲</th>
-                        <th onclick="ordinaPerDato()">Dato</th>
-                        <th onclick="ordinaPerData()">Data e Ora ▲</th>
-                    </tr>
-                </thead>
-                <tbody id="tabellaBody">
-                </tbody>
-            </table>
+        <div class="card">
+            <h3>3. Dati della Tabella Eventi</h3>
+            <div id="datiContainer"></div>
+        </div>
+
+        <div class="card">
+            <h3>4. Log Debug</h3>
+            <div id="debugLog" style="font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto; background: #f8f9fa; padding: 10px; border-radius: 5px;"></div>
         </div>
     </div>
 
@@ -164,184 +51,109 @@
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im13Z3BtemVhend5aXRtc2Zxc2hpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4OTY2MzksImV4cCI6MjA3NjQ3MjYzOX0.YYDwT-rS2gT9DFuv-VmyqdE4C2kTAJBusbuprd4RcYg';
         const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-        let eventi = [];
-        let ordinamento = 'id_desc';
+        function logDebug(messaggio, tipo = 'info') {
+            const debugDiv = document.getElementById('debugLog');
+            const timestamp = new Date().toLocaleTimeString();
+            debugDiv.innerHTML += `<div style="color: ${tipo === 'error' ? 'red' : tipo === 'success' ? 'green' : 'blue'}">[${timestamp}] ${messaggio}</div>`;
+            debugDiv.scrollTop = debugDiv.scrollHeight;
+        }
 
-        // Carica gli eventi all'avvio
-        document.addEventListener('DOMContentLoaded', function() {
-            caricaEventi();
-            
-            // Ricerca in tempo reale
-            document.getElementById('searchInput').addEventListener('input', function(e) {
-                filtraEventi(e.target.value);
-            });
-        });
+        // Test connessione
+        async function testConnessione() {
+            logDebug('🔍 Test connessione a Supabase...');
+            document.getElementById('testResult').innerHTML = '<div class="info">Test in corso...</div>';
 
-        // Funzione per caricare gli eventi
+            try {
+                // Test semplice della connessione
+                const { data, error } = await supabase
+                    .from('eventi')
+                    .select('count')
+                    .limit(1);
+
+                if (error) {
+                    throw error;
+                }
+
+                logDebug('✅ Connessione a Supabase OK');
+                document.getElementById('testResult').innerHTML = '<div class="success">✅ Connessione a Supabase riuscita!</div>';
+                
+            } catch (error) {
+                logDebug('❌ Errore connessione: ' + error.message, 'error');
+                document.getElementById('testResult').innerHTML = `<div class="error">❌ Errore: ${error.message}</div>`;
+            }
+        }
+
+        // Carica eventi
         async function caricaEventi() {
-            mostraLoading(true);
-            nascondiErrori();
-            
+            logDebug('📥 Caricamento eventi...');
+            document.getElementById('caricaResult').innerHTML = '<div class="info">Caricamento in corso...</div>';
+
             try {
                 const { data, error } = await supabase
                     .from('eventi')
                     .select('*')
                     .order('created_at', { ascending: false });
 
-                if (error) throw error;
+                if (error) {
+                    throw error;
+                }
 
-                eventi = data || [];
-                aggiornaInterfaccia();
+                logDebug(`📊 Trovati ${data ? data.length : 0} eventi`);
                 
-                document.getElementById('lastUpdate').textContent = new Date().toLocaleString('it-IT');
-                document.getElementById('status').textContent = 'Caricato';
-                
+                if (!data || data.length === 0) {
+                    document.getElementById('caricaResult').innerHTML = '<div class="info">📭 Nessun evento trovato nella tabella</div>';
+                    document.getElementById('datiContainer').innerHTML = '<div class="info">La tabella "eventi" è vuota</div>';
+                } else {
+                    document.getElementById('caricaResult').innerHTML = `<div class="success">✅ Caricati ${data.length} eventi</div>`;
+                    mostraDati(data);
+                }
+
             } catch (error) {
-                mostraErrore('Errore nel caricamento: ' + error.message);
-                console.error('Errore:', error);
+                logDebug('❌ Errore caricamento: ' + error.message, 'error');
+                document.getElementById('caricaResult').innerHTML = `<div class="error">❌ Errore: ${error.message}</div>`;
             }
         }
 
-        // Funzione per aggiornare l'interfaccia
-        function aggiornaInterfaccia() {
-            const tbody = document.getElementById('tabellaBody');
-            const tabella = document.getElementById('tabellaEventi');
-            const emptyMessage = document.getElementById('emptyMessage');
-            const totalCount = document.getElementById('totalCount');
-            
-            totalCount.textContent = eventi.length;
-            
-            if (eventi.length === 0) {
-                tabella.style.display = 'none';
-                emptyMessage.style.display = 'block';
-                mostraLoading(false);
-                return;
-            }
-            
-            emptyMessage.style.display = 'none';
-            
-            // Applica ordinamento
-            let eventiOrdinati = [...eventi];
-            switch (ordinamento) {
-                case 'id_asc':
-                    eventiOrdinati.sort((a, b) => a.id - b.id);
-                    break;
-                case 'id_desc':
-                    eventiOrdinati.sort((a, b) => b.id - a.id);
-                    break;
-                case 'data_asc':
-                    eventiOrdinati.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-                    break;
-                case 'data_desc':
-                    eventiOrdinati.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-                    break;
-                case 'dato_asc':
-                    eventiOrdinati.sort((a, b) => a.dato.localeCompare(b.dato));
-                    break;
-                case 'dato_desc':
-                    eventiOrdinati.sort((a, b) => b.dato.localeCompare(a.dato));
-                    break;
-            }
-            
-            // Popola la tabella
-            tbody.innerHTML = '';
-            eventiOrdinati.forEach(evento => {
-                const riga = document.createElement('tr');
+        // Mostra dati in tabella
+        function mostraDati(eventi) {
+            let html = `
+                <h4>Eventi (${eventi.length} totali):</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Dato</th>
+                            <th>Data Creazione</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            eventi.forEach(evento => {
                 const dataOra = new Date(evento.created_at).toLocaleString('it-IT');
-                
-                riga.innerHTML = `
-                    <td><strong>${evento.id}</strong></td>
-                    <td>${escapeHTML(evento.dato)}</td>
-                    <td class="timestamp">${dataOra}</td>
+                html += `
+                    <tr>
+                        <td><strong>${evento.id}</strong></td>
+                        <td>${evento.dato || '(vuoto)'}</td>
+                        <td>${dataOra}</td>
+                    </tr>
                 `;
-                tbody.appendChild(riga);
             });
-            
-            tabella.style.display = 'table';
-            mostraLoading(false);
+
+            html += `
+                    </tbody>
+                </table>
+            `;
+
+            document.getElementById('datiContainer').innerHTML = html;
+            logDebug('✅ Tabella eventi visualizzata');
         }
 
-        // Funzioni di ordinamento
-        function ordinaPerID() {
-            ordinamento = ordinamento === 'id_asc' ? 'id_desc' : 'id_asc';
-            aggiornaInterfaccia();
-        }
-
-        function ordinaPerData() {
-            ordinamento = ordinamento === 'data_asc' ? 'data_desc' : 'data_asc';
-            aggiornaInterfaccia();
-        }
-
-        function ordinaPerDato() {
-            ordinamento = ordinamento === 'dato_asc' ? 'dato_desc' : 'dato_asc';
-            aggiornaInterfaccia();
-        }
-
-        // Funzione di ricerca/filtro
-        function filtraEventi(testoCercato) {
-            const righe = document.querySelectorAll('#tabellaBody tr');
-            const testo = testoCercato.toLowerCase();
-            
-            righe.forEach(riga => {
-                const testoRiga = riga.textContent.toLowerCase();
-                riga.style.display = testoRiga.includes(testo) ? '' : 'none';
-            });
-        }
-
-        // Esporta in CSV
-        function esportaCSV() {
-            if (eventi.length === 0) {
-                alert('Nessun dato da esportare');
-                return;
-            }
-            
-            const headers = ['ID', 'Dato', 'Data e Ora'];
-            const righeCSV = [
-                headers.join(','),
-                ...eventi.map(evento => [
-                    evento.id,
-                    `"${evento.dato.replace(/"/g, '""')}"`,
-                    `"${new Date(evento.created_at).toLocaleString('it-IT')}"`
-                ].join(','))
-            ];
-            
-            const csvContent = righeCSV.join('\n');
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            
-            link.setAttribute('href', url);
-            link.setAttribute('download', `eventi_${new Date().toISOString().split('T')[0]}.csv`);
-            link.style.visibility = 'hidden';
-            
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        // Utility functions
-        function mostraLoading(mostra) {
-            document.getElementById('loadingMessage').style.display = mostra ? 'block' : 'none';
-        }
-
-        function mostraErrore(messaggio) {
-            document.getElementById('errorMessage').textContent = messaggio;
-            document.getElementById('errorMessage').style.display = 'block';
-            mostraLoading(false);
-        }
-
-        function nascondiErrori() {
-            document.getElementById('errorMessage').style.display = 'none';
-        }
-
-        function escapeHTML(testo) {
-            const div = document.createElement('div');
-            div.textContent = testo;
-            return div.innerHTML;
-        }
-
-        // Aggiorna automaticamente ogni 30 secondi
-        setInterval(caricaEventi, 30000);
+        // Test automatico all'avvio
+        document.addEventListener('DOMContentLoaded', function() {
+            logDebug('🚀 Pagina caricata - Debug inizializzato');
+            setTimeout(testConnessione, 1000);
+        });
     </script>
 </body>
 </html>
