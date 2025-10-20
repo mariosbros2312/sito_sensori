@@ -1,14 +1,32 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html>
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
 <body>
-    <button onclick="fetch('https://tuo-progetto.supabase.co/rest/v1/clicks', {
-        method: 'POST',
-        headers: {
-            'Authorization': 'Bearer tuo-anon-key',
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify([{button_name: 'canva_click'}])
-    }).then(() => alert('Saved!'))">Click Me</button>
+    <button onclick="insertData()" style="font-size: 24px; cursor: pointer;">
+        ➕ Inserisci Dato
+    </button>
+
+    <script>
+        const supabase = window.supabase.createClient(
+            'TUO_SUPABASE_URL',
+            'TUO_SUPABASE_KEY'
+        );
+
+        async function insertData() {
+            const { data, error } = await supabase
+                .from('tabella')
+                .insert([{ 
+                    colonna: 'Valore inserito ' + new Date().toLocaleString() 
+                }]);
+            
+            if (error) {
+                alert('Errore: ' + error.message);
+            } else {
+                alert('Dato inserito con successo!');
+            }
+        }
+    </script>
 </body>
 </html>
