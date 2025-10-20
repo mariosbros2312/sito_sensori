@@ -10,10 +10,10 @@
 
     <script>
         const supabase = window.supabase.createClient(
-            'TUO_SUPABASE_URL',
-            'TUO_SUPABASE_KEY'
-        );
+            'https://mwgpmzeazwyitmsfqshi.supabase.co',<!-- https://supabase.com/dashboard/project/il tuo progetto -->
 
+            'sb_publishable_UPl5jyg6JUgIC4FdGW8FNA_y4ig2JAb'<!--https://supabase.com/dashboard/project/mwgpmzeazwyitmsfqshi/settings/api-keys/new-->
+        );
         async function insertData() {
             const { data, error } = await supabase
                 .from('tabella')
@@ -30,3 +30,4 @@
     </script>
 </body>
 </html>
+
