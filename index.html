@@ -63,9 +63,9 @@
             margin-bottom: 20px;
         }
         
-        .countdown-container {
-            background: rgba(231, 76, 60, 0.2);
-            border: 2px solid var(--danger);
+        .opening-hours {
+            background: rgba(243, 156, 18, 0.2);
+            border: 2px solid var(--accent);
             border-radius: var(--radius);
             padding: 15px;
             margin: 20px auto;
@@ -73,62 +73,15 @@
             text-align: center;
         }
         
-        .countdown-title {
+        .opening-hours-title {
             font-size: 1.2rem;
             margin-bottom: 10px;
             color: var(--accent);
         }
         
-        .countdown {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-        }
-        
-        .countdown-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        .countdown-value {
-            font-size: 2rem;
-            font-weight: bold;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 10px 15px;
-            border-radius: 8px;
-            min-width: 70px;
-        }
-        
-        .countdown-label {
-            font-size: 0.8rem;
-            margin-top: 5px;
-            opacity: 0.8;
-        }
-        
-        .countdown-warning {
-            color: var(--warning);
-        }
-        
-        .countdown-danger {
-            color: var(--danger);
-            animation: pulse 1s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.6; }
-            100% { opacity: 1; }
-        }
-        
-        .countdown-expired {
-            background: rgba(231, 76, 60, 0.3);
-            padding: 15px;
-            border-radius: var(--radius);
-            text-align: center;
-            font-weight: bold;
-            color: var(--danger);
-            margin: 20px 0;
+        .opening-hours-info {
+            font-size: 1rem;
+            opacity: 0.9;
         }
         
         .main-content {
@@ -160,8 +113,20 @@
         
         .cocktail-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 20px;
+        }
+        
+        @media (max-width: 1100px) {
+            .cocktail-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 700px) {
+            .cocktail-grid {
+                grid-template-columns: 1fr;
+            }
         }
         
         .cocktail-card {
@@ -170,6 +135,9 @@
             overflow: hidden;
             transition: transform 0.3s, box-shadow 0.3s;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
         }
         
         .cocktail-card:hover {
@@ -178,7 +146,7 @@
         }
         
         .cocktail-image {
-            height: 180px;
+            height: 160px;
             width: 100%;
             background-size: cover;
             background-position: center;
@@ -194,38 +162,42 @@
             padding: 5px 12px;
             border-radius: 20px;
             font-weight: bold;
-            font-size: 1.1rem;
+            font-size: 1rem;
         }
         
         .cocktail-info {
-            padding: 20px;
+            padding: 15px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
         }
         
         .cocktail-name {
-            font-size: 1.3rem;
-            margin-bottom: 10px;
+            font-size: 1.2rem;
+            margin-bottom: 8px;
             color: var(--light);
         }
         
         .cocktail-description {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             opacity: 0.8;
-            margin-bottom: 15px;
-            line-height: 1.5;
+            margin-bottom: 10px;
+            line-height: 1.4;
+            flex-grow: 1;
         }
         
         .cocktail-ingredients {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             opacity: 0.7;
             font-style: italic;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
         
         .add-to-cart {
             background: var(--secondary);
             color: white;
             border: none;
-            padding: 10px 15px;
+            padding: 8px 12px;
             border-radius: 6px;
             cursor: pointer;
             width: 100%;
@@ -235,6 +207,7 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+            font-size: 0.9rem;
         }
         
         .add-to-cart:hover {
@@ -266,7 +239,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px 0;
+            padding: 12px 0;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
         
@@ -277,30 +250,32 @@
         .cart-item-name {
             font-weight: bold;
             margin-bottom: 5px;
+            font-size: 0.95rem;
         }
         
         .cart-item-price {
             opacity: 0.8;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
         
         .cart-item-controls {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
         
         .quantity-btn {
             background: rgba(255, 255, 255, 0.1);
             color: white;
             border: none;
-            width: 30px;
-            height: 30px;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 0.8rem;
         }
         
         .quantity-btn:hover:not(:disabled) {
@@ -320,11 +295,12 @@
         .summary-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
         }
         
         .total {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: bold;
             color: var(--accent);
             margin: 15px 0;
@@ -334,9 +310,9 @@
             background: var(--success);
             color: white;
             border: none;
-            padding: 15px;
+            padding: 12px;
             border-radius: 8px;
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: bold;
             cursor: pointer;
             width: 100%;
@@ -359,7 +335,7 @@
         }
         
         .empty-cart i {
-            font-size: 3rem;
+            font-size: 2.5rem;
             margin-bottom: 15px;
             opacity: 0.5;
         }
@@ -396,7 +372,7 @@
         }
         
         .category-title {
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             margin-bottom: 15px;
             color: var(--accent);
             padding-left: 10px;
@@ -426,23 +402,9 @@
             <h1 class="logo">Mixology Bar</h1>
             <p class="tagline">I cocktail più ricercati, preparati con passione</p>
             
-            <div class="countdown-container">
-                <div class="countdown-title">Tempo rimanente per ordinare stasera:</div>
-                <div class="countdown" id="countdown">
-                    <div class="countdown-item">
-                        <div class="countdown-value" id="hours">00</div>
-                        <div class="countdown-label">ORE</div>
-                    </div>
-                    <div class="countdown-item">
-                        <div class="countdown-value" id="minutes">00</div>
-                        <div class="countdown-label">MIN</div>
-                    </div>
-                    <div class="countdown-item">
-                        <div class="countdown-value" id="seconds">00</div>
-                        <div class="countdown-label">SEC</div>
-                    </div>
-                </div>
-                <div class="order-time-info">Le ordinazioni sono aperte fino alle 22:00</div>
+            <div class="opening-hours">
+                <div class="opening-hours-title">Orari di Apertura</div>
+                <div class="opening-hours-info">Aperto tutti i giorni dalle 18:00 alle 02:00</div>
             </div>
         </header>
         
@@ -584,6 +546,24 @@
                 price: 10.00,
                 image: "url('https://images.unsplash.com/photo-1536935338788-846bb9981813?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80')",
                 category: "Cocktail Moderni"
+            },
+            {
+                id: 11,
+                name: "Old Fashioned",
+                description: "Un classico intramontabile, per i palati più raffinati.",
+                ingredients: "Whisky, Zucchero, Angostura Bitter",
+                price: 9.50,
+                image: "url('https://images.unsplash.com/photo-1570598912132-0ba1dc952b7d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80')",
+                category: "Cocktail Classici"
+            },
+            {
+                id: 12,
+                name: "Manhattan",
+                description: "Elegante e sofisticato, il cocktail della Grande Mela.",
+                ingredients: "Whisky Rye, Vermouth Rosso, Angostura Bitter",
+                price: 10.00,
+                image: "url('https://images.unsplash.com/photo-1544145945-f90425340c7e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80')",
+                category: "Cocktail Classici"
             }
         ];
 
@@ -598,106 +578,15 @@
         const totalEl = document.getElementById('total');
         const checkoutBtn = document.getElementById('checkout-btn');
         const notification = document.getElementById('notification');
-        const countdownEl = document.getElementById('countdown');
-        const hoursEl = document.getElementById('hours');
-        const minutesEl = document.getElementById('minutes');
-        const secondsEl = document.getElementById('seconds');
-        
-        // Variabili per il countdown
-        let countdownInterval;
-        let orderingEnabled = true;
         
         // Inizializzazione
         document.addEventListener('DOMContentLoaded', function() {
             renderCocktails();
             updateCart();
-            startCountdown();
             
             // Aggiungi event listener al pulsante di checkout
             checkoutBtn.addEventListener('click', processOrder);
         });
-        
-        // Countdown per le ordinazioni (scade alle 22:00)
-        function startCountdown() {
-            // Imposta l'orario di scadenza a 22:00 (10 PM)
-            const now = new Date();
-            const deadline = new Date();
-            deadline.setHours(22, 0, 0, 0); // 22:00:00
-            
-            // Se siamo già dopo le 22:00, imposta la scadenza per il giorno successivo
-            if (now > deadline) {
-                deadline.setDate(deadline.getDate() + 1);
-            }
-            
-            function updateCountdown() {
-                const now = new Date();
-                const timeRemaining = deadline - now;
-                
-                // Se il countdown è scaduto
-                if (timeRemaining <= 0) {
-                    clearInterval(countdownInterval);
-                    orderingEnabled = false;
-                    disableOrdering();
-                    showCountdownExpired();
-                    return;
-                }
-                
-                // Calcola ore, minuti e secondi rimanenti
-                const hours = Math.floor(timeRemaining / (1000 * 60 * 60));
-                const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
-                
-                // Aggiorna il display
-                hoursEl.textContent = hours.toString().padStart(2, '0');
-                minutesEl.textContent = minutes.toString().padStart(2, '0');
-                secondsEl.textContent = seconds.toString().padStart(2, '0');
-                
-                // Cambia colore quando manca poco tempo
-                if (hours === 0) {
-                    countdownEl.classList.add('countdown-warning');
-                    if (minutes < 10) {
-                        countdownEl.classList.add('countdown-danger');
-                    }
-                }
-            }
-            
-            // Aggiorna immediatamente e poi ogni secondo
-            updateCountdown();
-            countdownInterval = setInterval(updateCountdown, 1000);
-        }
-        
-        // Disabilita le ordinazioni quando il countdown scade
-        function disableOrdering() {
-            // Disabilita tutti i pulsanti "Aggiungi al carrello"
-            document.querySelectorAll('.add-to-cart').forEach(button => {
-                button.disabled = true;
-                button.innerHTML = '<i class="fas fa-clock"></i> Ordinazioni Chiuse';
-            });
-            
-            // Disabilita i controlli del carrello
-            document.querySelectorAll('.quantity-btn').forEach(button => {
-                button.disabled = true;
-            });
-            
-            // Disabilita il pulsante di checkout
-            checkoutBtn.disabled = true;
-            checkoutBtn.innerHTML = '<i class="fas fa-ban"></i> Ordinazioni Chiuse';
-            
-            // Mostra un messaggio di notifica
-            showNotification('Le ordinazioni sono chiuse per stasera. Riprova domani!', 'warning');
-        }
-        
-        // Mostra il messaggio di countdown scaduto
-        function showCountdownExpired() {
-            const countdownContainer = document.querySelector('.countdown-container');
-            countdownContainer.innerHTML = `
-                <div class="countdown-expired">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <div>Le ordinazioni sono chiuse per stasera</div>
-                    <div>Riapriremo domani alle 18:00</div>
-                </div>
-            `;
-        }
         
         // Renderizza i cocktail nel menu
         function renderCocktails() {
@@ -753,11 +642,6 @@
             // Aggiungi event listener ai pulsanti "Aggiungi"
             document.querySelectorAll('.add-to-cart').forEach(button => {
                 button.addEventListener('click', function() {
-                    if (!orderingEnabled) {
-                        showNotification('Le ordinazioni sono chiuse per stasera!', 'warning');
-                        return;
-                    }
-                    
                     const cocktailId = parseInt(this.getAttribute('data-id'));
                     addToCart(cocktailId);
                 });
@@ -828,14 +712,14 @@
                             <div class="cart-item-price">€${item.price.toFixed(2)} cad.</div>
                         </div>
                         <div class="cart-item-controls">
-                            <button class="quantity-btn minus" data-id="${item.id}" ${!orderingEnabled ? 'disabled' : ''}>
+                            <button class="quantity-btn minus" data-id="${item.id}">
                                 <i class="fas fa-minus"></i>
                             </button>
                             <span>${item.quantity}</span>
-                            <button class="quantity-btn plus" data-id="${item.id}" ${!orderingEnabled ? 'disabled' : ''}>
+                            <button class="quantity-btn plus" data-id="${item.id}">
                                 <i class="fas fa-plus"></i>
                             </button>
-                            <button class="quantity-btn remove" data-id="${item.id}" ${!orderingEnabled ? 'disabled' : ''}>
+                            <button class="quantity-btn remove" data-id="${item.id}">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -844,12 +728,11 @@
                     cartItems.appendChild(cartItem);
                 });
                 
-                checkoutBtn.disabled = !orderingEnabled;
+                checkoutBtn.disabled = false;
                 
                 // Aggiungi event listener ai pulsanti di controllo quantità
                 document.querySelectorAll('.quantity-btn.minus').forEach(button => {
                     button.addEventListener('click', function() {
-                        if (!orderingEnabled) return;
                         const cocktailId = parseInt(this.getAttribute('data-id'));
                         updateQuantity(cocktailId, -1);
                     });
@@ -857,7 +740,6 @@
                 
                 document.querySelectorAll('.quantity-btn.plus').forEach(button => {
                     button.addEventListener('click', function() {
-                        if (!orderingEnabled) return;
                         const cocktailId = parseInt(this.getAttribute('data-id'));
                         updateQuantity(cocktailId, 1);
                     });
@@ -865,7 +747,6 @@
                 
                 document.querySelectorAll('.quantity-btn.remove').forEach(button => {
                     button.addEventListener('click', function() {
-                        if (!orderingEnabled) return;
                         const cocktailId = parseInt(this.getAttribute('data-id'));
                         removeFromCart(cocktailId);
                     });
@@ -904,7 +785,7 @@
         
         // Processa l'ordine
         function processOrder() {
-            if (cart.length === 0 || !orderingEnabled) return;
+            if (cart.length === 0) return;
             
             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             const serviceCharge = subtotal * 0.10;
