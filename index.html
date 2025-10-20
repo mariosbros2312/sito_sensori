@@ -15,27 +15,54 @@
     </div>
 
     <script>
-        // Configurazione Supabase - SOSTITUISCI CON I TUOI DATI
+        // USA UNA NUOVA KEY - RIGENERALA!
         const supabaseUrl = 'https://mwgpmzeazwyitmsfqshi.supabase.co'
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im13Z3BtemVhend5aXRtc2Zxc2hpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4OTY2MzksImV4cCI6MjA3NjQ3MjYzOX0.YYDwT-rS2gT9DFuv-VmyqdE4C2kTAJBusbuprd4RcYg'
+        const supabaseKey = 'NUOVA_KEY_QUI' // ← RIGENERA QUESTA!
+        
         const supabase = supabase.createClient(supabaseUrl, supabaseKey)
 
         async function inserisciEvento() {
             const dato = document.getElementById('datoInput').value;
             
+            // ⚠️ ASSICURATI DI USARE 'eventi' NON 'tabella'
             const { data, error } = await supabase
-                .from('eventi')
-                .insert([{ dato: dato }])
+                .from('eventi')  // ← QUESTO DEVE ESSERE 'eventi'
+                .insert([{ 
+                    dato: dato 
+                }])
                 .select();
 
             if (error) {
+                console.error('Errore completo:', error);
                 document.getElementById('risultato').innerHTML = 
-                    'Errore: ' + error.message;
+                    'Errore: ' + error.message + 
+                    '<br>Verifica che la tabella "eventi" esista in Supabase';
             } else {
                 document.getElementById('risultato').innerHTML = 
-                    'Evento inserito! ID: ' + data[0].id;
+                    'Successo! Evento inserito con ID: ' + data[0].id;
             }
         }
+
+        // Verifica connessione e tabella
+        async function verificaSetup() {
+            console.log('Verificando configurazione...');
+            
+            const { data, error } = await supabase
+                .from('eventi')
+                .select('count')
+                .limit(1);
+            
+            if (error) {
+                console.log('Problema:', error.message);
+                return false;
+            } else {
+                console.log('✓ Tabella eventi accessibile');
+                return true;
+            }
+        }
+
+        // Esegui verifica all'avvio
+        verificaSetup();
     </script>
 </body>
 </html>
