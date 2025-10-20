@@ -11,6 +11,7 @@
         .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
         button { padding: 10px 15px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
         button:hover { background: #0056b3; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
         th { background: #f8f9fa; font-weight: bold; }
@@ -21,18 +22,63 @@
         .loading { text-align: center; padding: 20px; color: #6c757d; }
         .stats { display: flex; gap: 20px; margin-bottom: 15px; flex-wrap: wrap; }
         .stat-item { background: #e9ecef; padding: 10px 15px; border-radius: 5px; }
+        .login-form { background: #fff3cd; padding: 15px; border-radius: 5px; margin-bottom: 15px; border: 1px solid #ffeaa7; }
+        .form-group { margin-bottom: 10px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="email"], input[type="password"] { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        .user-info { background: #d1ecf1; padding: 10px; border-radius: 5px; margin-bottom: 15px; }
+        .logout-btn { background: #dc3545; }
+        .logout-btn:hover { background: #c82333; }
+        .admin-badge { background: #dc3545; color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-left: 10px; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>📊 Visualizzatore Eventi Supabase</h1>
         
+        <!-- Form di Login -->
+        <div class="card" id="loginCard">
+            <h3>🔐 Accesso</h3>
+            <div class="login-form">
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" placeholder="la-tua-email@esempio.com">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" placeholder="La tua password">
+                </div>
+                <button onclick="window.effettuaLogin()">🚪 Accedi</button>
+                <button onclick="window.registraUtente()">📝 Registrati</button>
+                <button onclick="window.loginOspite()">👤 Accesso Ospite</button>
+            </div>
+            <div class="info">
+                <strong>Credenziali di test (da creare prima):</strong><br>
+                • Admin: admin@example.com / password123<br>
+                • Ospite: ospite@example.com / password123<br>
+                <em>Prima devi registrarli tramite il pulsante "Registrati"</em>
+            </div>
+        </div>
+
+        <!-- Area Utente Autenticato -->
+        <div class="card" id="userCard" style="display: none;">
+            <h3>
+                👤 <span id="userEmail">-</span>
+                <span id="adminBadge" class="admin-badge" style="display: none;">ADMIN</span>
+            </h3>
+            <div class="user-info">
+                <strong>Ruolo:</strong> <span id="userRole">-</span> | 
+                <strong>Ultimo accesso:</strong> <span id="lastSignIn">-</span>
+                <button class="logout-btn" onclick="window.effettuaLogout()">🚪 Logout</button>
+            </div>
+        </div>
+
         <div class="card">
             <h3>Controlli</h3>
             <div>
-                <button onclick="window.caricaEventi()">🔄 Carica Eventi</button>
-                <button onclick="window.verificaTabella()">🔍 Verifica Tabella</button>
-                <button onclick="window.testInserimento()">🧪 Test Inserimento</button>
+                <button onclick="window.caricaEventi()" id="btnCarica" disabled>🔄 Carica Eventi</button>
+                <button onclick="window.inserisciEvento()" id="btnInserisci" disabled>➕ Nuovo Evento</button>
+                <button onclick="window.gestisciUtenti()" id="btnGestione" disabled>👥 Gestione Utenti</button>
             </div>
         </div>
 
@@ -41,13 +87,13 @@
             <div class="stats">
                 <div class="stat-item"><strong>Eventi totali:</strong> <span id="totalEvents">0</span></div>
                 <div class="stat-item"><strong>Ultimo aggiornamento:</strong> <span id="lastUpdate">-</span></div>
-                <div class="stat-item"><strong>Stato:</strong> <span id="status">Pronto</span></div>
+                <div class="stat-item"><strong>Stato:</strong> <span id="status">Non autenticato</span></div>
             </div>
         </div>
 
         <div class="card">
             <h3>Eventi</h3>
-            <div id="loadingMessage" class="loading">🔄 Caricamento in corso...</div>
+            <div id="loadingMessage" class="loading">🔐 Effettua il login per visualizzare gli eventi</div>
             <div id="errorMessage" class="error" style="display: none;"></div>
             <div id="emptyMessage" class="info" style="display: none;">Nessun evento trovato nella tabella</div>
             <div id="datiContainer"></div>
@@ -55,18 +101,223 @@
     </div>
 
     <script>
-        // INIZIALIZZA SUPABASE PRIMA DI TUTTO
+        // INIZIALIZZA SUPABASE - SOLO URL E KEY PUBBLICA
         const supabaseUrl = 'https://mwgpmzeazwyitmsfqshi.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im13Z3BtemVhend5aXRtc2Zxc2hpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4OTY2MzksImV4cCI6MjA3NjQ3MjYzOX0.YYDwT-rS2gT9DFuv-VmyqdE4C2kTAJBusbuprd4RcYg';
         
-        // Creazione client Supabase
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
         console.log('✅ Supabase inizializzato');
 
-        // RENDE LE FUNZIONI GLOBALI
+        // LISTA UTENTI AUTORIZZATI (puoi espanderla)
+        const utentiAutorizzati = [
+            'admin@example.com',
+            'ospite@example.com',
+            'user@example.com'
+        ];
+
+        // CONTROLLA SE L'UTENTE È GIA' LOGGATO
+        async function controllaSessione() {
+            try {
+                const { data: { session }, error } = await _supabase.auth.getSession();
+                
+                if (session && session.user) {
+                    console.log('Sessione trovata:', session.user.email);
+                    
+                    // Verifica se l'utente è autorizzato
+                    if (utentiAutorizzati.includes(session.user.email)) {
+                        mostraInterfacciaUtente(session.user);
+                        return true;
+                    } else {
+                        await _supabase.auth.signOut();
+                        mostraErrore('Utente non autorizzato ad accedere a questa applicazione');
+                        return false;
+                    }
+                }
+                return false;
+            } catch (error) {
+                console.error('Errore controllo sessione:', error);
+                return false;
+            }
+        }
+
+        // FUNZIONE DI LOGIN SICURO
+        window.effettuaLogin = async function() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                mostraErrore('Inserisci email e password');
+                return;
+            }
+
+            mostraLoading(true, 'Accesso in corso...');
+            
+            try {
+                const { data, error } = await _supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+
+                if (error) {
+                    if (error.message.includes('Invalid login credentials')) {
+                        mostraErrore('Email o password errati');
+                        return;
+                    }
+                    if (error.message.includes('Email not confirmed')) {
+                        mostraErrore('Conferma la tua email prima di accedere');
+                        return;
+                    }
+                    throw error;
+                }
+
+                // Verifica che l'utente sia autorizzato
+                if (!utentiAutorizzati.includes(data.user.email)) {
+                    await _supabase.auth.signOut();
+                    mostraErrore('Utente non autorizzato');
+                    return;
+                }
+
+                console.log('Login riuscito:', data.user);
+                mostraInterfacciaUtente(data.user);
+                mostraMessaggioSuccesso('Accesso effettuato con successo!');
+                
+            } catch (error) {
+                console.error('Errore login:', error);
+                mostraErrore('Errore di accesso: ' + error.message);
+            } finally {
+                mostraLoading(false);
+            }
+        };
+
+        // REGISTRAZIONE (solo per creare nuovi account - da disabilitare in produzione)
+        window.registraUtente = async function() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                mostraErrore('Inserisci email e password');
+                return;
+            }
+
+            if (password.length < 6) {
+                mostraErrore('La password deve essere di almeno 6 caratteri');
+                return;
+            }
+
+            mostraLoading(true, 'Registrazione in corso...');
+            
+            try {
+                const { data, error } = await _supabase.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: {
+                        data: {
+                            username: email.split('@')[0]
+                        }
+                    }
+                });
+
+                if (error) throw error;
+
+                if (data.user) {
+                    mostraMessaggioSuccesso('Registrazione completata! Controlla la tua email per la conferma.');
+                    console.log('Utente registrato:', data.user);
+                    
+                    // Aggiungi l'email alla lista utenti autorizzati (temporaneo)
+                    if (!utentiAutorizzati.includes(email)) {
+                        utentiAutorizzati.push(email);
+                        console.log('Utente aggiunto alla lista autorizzati:', email);
+                    }
+                }
+                
+            } catch (error) {
+                console.error('Errore registrazione:', error);
+                mostraErrore('Errore registrazione: ' + error.message);
+            } finally {
+                mostraLoading(false);
+            }
+        };
+
+        // ACCESSO OSPITE (utente predefinito)
+        window.loginOspite = async function() {
+            document.getElementById('email').value = 'ospite@example.com';
+            document.getElementById('password').value = 'password123';
+            window.effettuaLogin();
+        };
+
+        // LOGOUT
+        window.effettuaLogout = async function() {
+            try {
+                const { error } = await _supabase.auth.signOut();
+                if (error) throw error;
+                
+                mostraInterfacciaLogin();
+                mostraMessaggioSuccesso('Logout effettuato con successo');
+                
+            } catch (error) {
+                console.error('Errore logout:', error);
+                mostraErrore('Errore durante il logout: ' + error.message);
+            }
+        };
+
+        // MOSTRA INTERFACCIA UTENTE
+        function mostraInterfacciaUtente(user) {
+            document.getElementById('loginCard').style.display = 'none';
+            document.getElementById('userCard').style.display = 'block';
+            
+            document.getElementById('userEmail').textContent = user.email;
+            document.getElementById('lastSignIn').textContent = new Date(user.last_sign_in_at).toLocaleString('it-IT');
+            
+            // Determina il ruolo in base all'email
+            const isAdmin = user.email === 'admin@example.com';
+            document.getElementById('userRole').textContent = isAdmin ? 'Amministratore' : 'Utente';
+            
+            if (isAdmin) {
+                document.getElementById('adminBadge').style.display = 'inline';
+                document.getElementById('btnGestione').disabled = false;
+            }
+            
+            // Abilita i pulsanti
+            abilitaPulsanti(true);
+            document.getElementById('status').textContent = 'Autenticato';
+            
+            // Carica automaticamente gli eventi
+            window.caricaEventi();
+        }
+
+        // MOSTRA INTERFACCIA LOGIN
+        function mostraInterfacciaLogin() {
+            document.getElementById('loginCard').style.display = 'block';
+            document.getElementById('userCard').style.display = 'none';
+            
+            // Pulisci i campi (eccetto per demo)
+            document.getElementById('password').value = '';
+            
+            // Disabilita i pulsanti
+            abilitaPulsanti(false);
+            document.getElementById('status').textContent = 'Non autenticato';
+            
+            // Nascondi i dati
+            document.getElementById('datiContainer').innerHTML = '';
+            document.getElementById('totalEvents').textContent = '0';
+        }
+
+        // ABILITA/DISABILITA PULSANTI
+        function abilitaPulsanti(abilitato) {
+            const pulsanti = ['btnCarica', 'btnInserisci'];
+            pulsanti.forEach(id => {
+                document.getElementById(id).disabled = !abilitato;
+            });
+        }
+
+        // FUNZIONI PRINCIPALI
         window.caricaEventi = async function() {
-            console.log('Chiamata caricaEventi');
-            mostraLoading(true);
+            if (!await controllaSessione()) {
+                mostraErrore('Devi effettuare il login per visualizzare gli eventi');
+                return;
+            }
+
+            mostraLoading(true, 'Caricamento eventi...');
             nascondiErrori();
             
             try {
@@ -77,13 +328,9 @@
                     .select('*')
                     .order('created_at', { ascending: false });
 
-                if (error) {
-                    throw new Error(`Errore Supabase: ${error.message} (${error.code})`);
-                }
+                if (error) throw error;
 
-                console.log('Dati ricevuti:', data);
                 aggiornaInterfaccia(data);
-                
                 document.getElementById('lastUpdate').textContent = new Date().toLocaleString('it-IT');
                 document.getElementById('status').textContent = 'Caricato';
                 
@@ -94,44 +341,37 @@
             }
         };
 
-        window.verificaTabella = async function() {
-            try {
-                document.getElementById('status').textContent = 'Verifica...';
-                const { data, error } = await _supabase
-                    .from('eventi')
-                    .select('id')
-                    .limit(1);
-
-                if (error) throw error;
-                
-                alert(`✅ Tabella "eventi" accessibile!`);
-                document.getElementById('status').textContent = 'Tabella OK';
-                
-            } catch (error) {
-                alert(`❌ Errore tabella: ${error.message}`);
-                document.getElementById('status').textContent = 'Errore tabella';
+        window.inserisciEvento = async function() {
+            if (!await controllaSessione()) {
+                mostraErrore('Devi effettuare il login per inserire eventi');
+                return;
             }
-        };
 
-        window.testInserimento = async function() {
+            const user = (await _supabase.auth.getUser()).data.user;
+            const dato = prompt('Inserisci il dato per il nuovo evento:');
+            if (!dato) return;
+
             try {
-                const testData = {
-                    dato: 'Test ' + new Date().toLocaleTimeString('it-IT')
-                };
-                
                 const { data, error } = await _supabase
                     .from('eventi')
-                    .insert([testData])
+                    .insert([{ 
+                        dato: dato,
+                        user_email: user.email // Salva l'email invece dell'ID
+                    }])
                     .select();
 
                 if (error) throw error;
                 
-                alert(`✅ Test inserimento riuscito! ID: ${data[0].id}`);
+                mostraMessaggioSuccesso(`Evento inserito con ID: ${data[0].id}`);
                 window.caricaEventi(); // Ricarica la lista
                 
             } catch (error) {
-                alert(`❌ Errore test: ${error.message}`);
+                mostraErrore('Errore inserimento: ' + error.message);
             }
+        };
+
+        window.gestisciUtenti = function() {
+            alert('Funzione di gestione utenti (solo per admin)\n\nUtenti autorizzati:\n' + utentiAutorizzati.join('\n'));
         };
 
         // FUNZIONI DI SUPPORTO
@@ -157,6 +397,7 @@
                         <tr>
                             <th>ID</th>
                             <th>Dato</th>
+                            <th>Utente</th>
                             <th>Data e Ora</th>
                         </tr>
                     </thead>
@@ -165,10 +406,12 @@
             
             eventi.forEach(evento => {
                 const dataOra = new Date(evento.created_at).toLocaleString('it-IT');
+                const userEmail = evento.user_email || 'anon';
                 html += `
                     <tr>
                         <td><strong>${evento.id}</strong></td>
                         <td>${evento.dato || '(vuoto)'}</td>
+                        <td><small>${userEmail}</small></td>
                         <td>${dataOra}</td>
                     </tr>
                 `;
@@ -184,8 +427,10 @@
             mostraLoading(false);
         }
 
-        function mostraLoading(mostra) {
-            document.getElementById('loadingMessage').style.display = mostra ? 'block' : 'none';
+        function mostraLoading(mostra, messaggio = 'Caricamento in corso...') {
+            const loadingDiv = document.getElementById('loadingMessage');
+            loadingDiv.textContent = messaggio;
+            loadingDiv.style.display = mostra ? 'block' : 'none';
         }
 
         function mostraErrore(messaggio) {
@@ -193,18 +438,23 @@
             document.getElementById('errorMessage').style.display = 'block';
         }
 
+        function mostraMessaggioSuccesso(messaggio) {
+            const div = document.createElement('div');
+            div.className = 'success';
+            div.textContent = '✅ ' + messaggio;
+            document.querySelector('.container').insertBefore(div, document.querySelector('.card'));
+            setTimeout(() => div.remove(), 3000);
+        }
+
         function nascondiErrori() {
             document.getElementById('errorMessage').style.display = 'none';
             document.getElementById('emptyMessage').style.display = 'none';
         }
 
-        // CARICAMENTO AUTOMATICO ALL'AVVIO
+        // INIZIALIZZAZIONE
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM caricato, inizializzo...');
-            // Aspetta un attimo che tutto sia pronto
-            setTimeout(() => {
-                window.caricaEventi();
-            }, 1000);
+            console.log('DOM caricato, controllo sessione...');
+            controllaSessione();
         });
     </script>
 </body>
