@@ -7,118 +7,60 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-    <div id="app">
-        <h1>Inserisci Evento</h1>
-        <input type="text" id="datoInput" placeholder="Inserisci dato">
-        <button id="salvaBtn">Salva</button>
-        <div id="risultato"></div>
-        <div id="debug" style="margin-top: 20px; padding: 10px; background: #f5f5f5;"></div>
-    </div>
+    <h1>Inserisci Evento</h1>
+    <input type="text" id="datoInput" placeholder="Inserisci dato">
+    <button onclick="inserisciEvento()">Salva</button>
+    <div id="risultato" style="margin-top: 10px;"></div>
 
     <script>
-        // INIZIALIZZA SUPABASE PRIMA DI TUTTO
-        const supabaseUrl = 'https://mwgpmzeazwyitmsfqshi.supabase.co'
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im13Z3BtemVhend5aXRtc2Zxc2hpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4OTY2MzksImV4cCI6MjA3NjQ3MjYzOX0.YYDwT-rS2gT9DFuv-VmyqdE4C2kTAJBusbuprd4RcYg'
-        
-        const supabase = supabase.createClient(supabaseUrl, supabaseKey)
-        
-        console.log('Supabase inizializzato:', !!supabase);
+        // INIZIALIZZA SUPABASE - versione sicura
+        const _supabase = supabase.createClient(
+            'https://mwgpmzeazwyitmsfqshi.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im13Z3BtemVhend5aXRtc2Zxc2hpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4OTY2MzksImV4cCI6MjA3NjQ3MjYzOX0.YYDwT-rS2gT9DFuv-VmyqdE4C2kTAJBusbuprd4RcYg'
+        );
 
         // FUNZIONE PRINCIPALE
-        async function inserisciEvento() {
+        window.inserisciEvento = async function() {
             const dato = document.getElementById('datoInput').value;
-            const debugDiv = document.getElementById('debug');
+            const risultatoDiv = document.getElementById('risultato');
             
-            // DEBUG: mostra cosa stiamo inviando
-            debugDiv.innerHTML = `<strong>DEBUG:</strong><br>
-            Dato da inviare: "${dato}"<br>
-            Tipo: ${typeof dato}<br>
-            Lunghezza: ${dato.length}<br>
-            Supabase inizializzato: ${!!supabase}`;
-
-            if (!dato || dato.trim() === '') {
-                document.getElementById('risultato').innerHTML = 'Errore: Inserisci un dato valido';
+            if (!dato) {
+                risultatoDiv.innerHTML = '⚠️ Inserisci un dato';
                 return;
             }
 
-            try {
-                console.log('Invio dati a Supabase...', { dato: dato });
-                
-                const { data, error } = await supabase
-                    .from('eventi')
-                    .insert([{ 
-                        dato: dato.trim()
-                    }])
-                    .select();
+            risultatoDiv.innerHTML = '⏳ Invio in corso...';
 
-                console.log('Risposta Supabase:', { data, error });
+            try {
+                const { data, error } = await _supabase
+                    .from('eventi')
+                    .insert([{ dato: dato }])
+                    .select();
 
                 if (error) {
                     throw error;
                 }
 
                 if (data && data.length > 0) {
-                    document.getElementById('risultato').innerHTML = 
-                        `✅ Successo! Inserito:<br>
+                    risultatoDiv.innerHTML = 
+                        `✅ <strong>Successo!</strong><br>
                          ID: ${data[0].id}<br>
                          Dato: "${data[0].dato}"<br>
-                         Creato: ${new Date(data[0].created_at).toLocaleString()}`;
+                         Data: ${new Date(data[0].created_at).toLocaleString('it-IT')}`;
                     
-                    // Pulisci input dopo successo
+                    // Reset input
                     document.getElementById('datoInput').value = '';
-                } else {
-                    document.getElementById('risultato').innerHTML = '❌ Nessun dato restituito dopo inserimento';
                 }
 
             } catch (error) {
-                console.error('Errore completo:', error);
-                document.getElementById('risultato').innerHTML = 
-                    `❌ Errore:<br>${error.message}<br>
-                     Dettagli: ${JSON.stringify(error)}`;
+                console.error('Errore:', error);
+                risultatoDiv.innerHTML = 
+                    `❌ <strong>Errore:</strong> ${error.message}<br>
+                     <small>Controlla la console per dettagli</small>`;
             }
         }
 
-        // Funzione per verificare i dati esistenti
-        async function verificaDatiEsistenti() {
-            try {
-                const { data, error } = await supabase
-                    .from('eventi')
-                    .select('*')
-                    .order('created_at', { ascending: false })
-                    .limit(5);
-                
-                const debugDiv = document.getElementById('debug');
-                
-                if (error) {
-                    debugDiv.innerHTML += `<br>❌ Errore lettura: ${error.message}`;
-                } else if (data && data.length > 0) {
-                    debugDiv.innerHTML += `<br><br><strong>Ultimi 5 record:</strong><br>`;
-                    data.forEach(record => {
-                        debugDiv.innerHTML += `ID: ${record.id} | Dato: "${record.dato}" | Data: ${new Date(record.created_at).toLocaleString()}<br>`;
-                    });
-                } else {
-                    debugDiv.innerHTML += `<br>📭 Tabella vuota - nessun dato trovato`;
-                }
-            } catch (err) {
-                console.error('Errore verifica:', err);
-            }
-        }
-
-        // INIZIALIZZA L'EVENT LISTENER DOPO CHE LA PAGINA È CARICATA
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Pagina caricata, inizializzo event listener...');
-            
-            // Usa event listener invece di onclick nell'HTML
-            document.getElementById('salvaBtn').addEventListener('click', inserisciEvento);
-            
-            // Verifica all'avvio
-            verificaDatiEsistenti();
-        });
-
-        // Backup: anche inizializza quando tutto è caricato
-        window.addEventListener('load', function() {
-            console.log('Window completamente caricata');
-        });
+        console.log('✅ App caricata - pronta per inserimenti');
     </script>
 </body>
 </html>
