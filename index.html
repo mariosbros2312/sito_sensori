@@ -12,57 +12,91 @@
         <input type="text" id="datoInput" placeholder="Inserisci dato">
         <button onclick="inserisciEvento()">Salva</button>
         <div id="risultato"></div>
+        <div id="debug" style="margin-top: 20px; padding: 10px; background: #f5f5f5;"></div>
     </div>
 
     <script>
-        // USA UNA NUOVA KEY - RIGENERALA!
         const supabaseUrl = 'https://mwgpmzeazwyitmsfqshi.supabase.co'
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im13Z3BtemVhend5aXRtc2Zxc2hpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4OTY2MzksImV4cCI6MjA3NjQ3MjYzOX0.YYDwT-rS2gT9DFuv-VmyqdE4C2kTAJBusbuprd4RcYg' // ← RIGENERA QUESTA!
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im13Z3BtemVhend5aXRtc2Zxc2hpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4OTY2MzksImV4cCI6MjA3NjQ3MjYzOX0.YYDwT-rS2gT9DFuv-VmyqdE4C2kTAJBusbuprd4RcYg'
         
         const supabase = supabase.createClient(supabaseUrl, supabaseKey)
 
         async function inserisciEvento() {
             const dato = document.getElementById('datoInput').value;
+            const debugDiv = document.getElementById('debug');
             
-            // ⚠️ ASSICURATI DI USARE 'eventi' NON 'tabella'
-            const { data, error } = await supabase
-                .from('eventi')  // ← QUESTO DEVE ESSERE 'eventi'
-                .insert([{ 
-                    dato: dato 
-                }])
-                .select();
+            // DEBUG: mostra cosa stiamo inviando
+            debugDiv.innerHTML = `<strong>DEBUG:</strong><br>
+            Dato da inviare: "${dato}"<br>
+            Tipo: ${typeof dato}<br>
+            Lunghezza: ${dato.length}`;
 
-            if (error) {
+            if (!dato || dato.trim() === '') {
+                document.getElementById('risultato').innerHTML = 'Errore: Inserisci un dato valido';
+                return;
+            }
+
+            try {
+                console.log('Invio dati a Supabase...', { dato: dato });
+                
+                const { data, error } = await supabase
+                    .from('eventi')
+                    .insert([{ 
+                        dato: dato.trim()  // ← USIAMO trim() per pulire
+                    }])
+                    .select();
+
+                console.log('Risposta Supabase:', { data, error });
+
+                if (error) {
+                    throw error;
+                }
+
+                if (data && data.length > 0) {
+                    document.getElementById('risultato').innerHTML = 
+                        `✅ Successo! Inserito:<br>
+                         ID: ${data[0].id}<br>
+                         Dato: "${data[0].dato}"<br>
+                         Creato: ${new Date(data[0].created_at).toLocaleString()}`;
+                    
+                    // Pulisci input dopo successo
+                    document.getElementById('datoInput').value = '';
+                } else {
+                    document.getElementById('risultato').innerHTML = '❌ Nessun dato restituito dopo inserimento';
+                }
+
+            } catch (error) {
                 console.error('Errore completo:', error);
                 document.getElementById('risultato').innerHTML = 
-                    'Errore: ' + error.message + 
-                    '<br>Verifica che la tabella "eventi" esista in Supabase';
-            } else {
-                document.getElementById('risultato').innerHTML = 
-                    'Successo! Evento inserito con ID: ' + data[0].id;
+                    `❌ Errore:<br>${error.message}<br>
+                     Dettagli: ${JSON.stringify(error)}`;
             }
         }
 
-        // Verifica connessione e tabella
-        async function verificaSetup() {
-            console.log('Verificando configurazione...');
-            
+        // Funzione per verificare i dati esistenti
+        async function verificaDatiEsistenti() {
             const { data, error } = await supabase
                 .from('eventi')
-                .select('count')
-                .limit(1);
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(5);
+            
+            const debugDiv = document.getElementById('debug');
             
             if (error) {
-                console.log('Problema:', error.message);
-                return false;
+                debugDiv.innerHTML += `<br>❌ Errore lettura: ${error.message}`;
+            } else if (data && data.length > 0) {
+                debugDiv.innerHTML += `<br><br><strong>Ultimi 5 record:</strong><br>`;
+                data.forEach(record => {
+                    debugDiv.innerHTML += `ID: ${record.id} | Dato: "${record.dato}" | Data: ${new Date(record.created_at).toLocaleString()}<br>`;
+                });
             } else {
-                console.log('✓ Tabella eventi accessibile');
-                return true;
+                debugDiv.innerHTML += `<br>📭 Tabella vuota - nessun dato trovato`;
             }
         }
 
-        // Esegui verifica all'avvio
-        verificaSetup();
+        // Verifica all'avvio
+        verificaDatiEsistenti();
     </script>
 </body>
 </html>
