@@ -35,6 +35,7 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
+            margin: 5px;
         }
         button:hover {
             background-color: #0056b3;
@@ -82,39 +83,51 @@
         }
         .debug-section {
             margin-bottom: 10px;
+            padding: 5px;
+            border-left: 3px solid #007bff;
+        }
+        .debug-error {
+            border-left-color: #dc3545;
+        }
+        .debug-success {
+            border-left-color: #28a745;
         }
         .debug-title {
             font-weight: bold;
-            margin-bottom: 5px;
+            margin-bottom: 10px;
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
-    <h1>📦 Gestione Prodotti</h1>
+    <h1>📦 Gestione Prodotti - DEBUG</h1>
     
     <div class="form-group">
         <label for="datoInput">Tipo Evento:</label>
-        <input type="text" id="datoInput" placeholder="Es: vendita, ordine, rifornimento...">
+        <input type="text" id="datoInput" placeholder="Es: vendita, ordine, rifornimento..." value="test">
     </div>
 
     <div class="form-group">
         <label for="nomeProdotto">Nome Prodotto:</label>
-        <input type="text" id="nomeProdotto" placeholder="Es: iPhone 15, MacBook Pro...">
+        <input type="text" id="nomeProdotto" placeholder="Es: iPhone 15, MacBook Pro..." value="Prodotto Test">
     </div>
 
     <div class="form-group">
         <label for="prezzo">Prezzo (€):</label>
-        <input type="number" id="prezzo" placeholder="0.00" step="0.01" min="0">
+        <input type="number" id="prezzo" placeholder="0.00" step="0.01" min="0" value="10.50">
     </div>
 
     <div class="form-group">
         <label for="quantita">Quantità:</label>
-        <input type="number" id="quantita" placeholder="1" min="1" value="1">
+        <input type="number" id="quantita" placeholder="1" min="1" value="2">
     </div>
 
-    <button onclick="inserisciEvento()">💾 Salva Prodotto</button>
-    <button onclick="testConnessione()" style="background-color: #28a745;">🔍 Test Connessione</button>
-    <button onclick="leggiDati()" style="background-color: #17a2b8;">📊 Leggi Dati</button>
+    <div>
+        <button onclick="inserisciEvento()">💾 Salva Prodotto</button>
+        <button onclick="testConnessione()" style="background-color: #28a745;">🔍 Test Connessione</button>
+        <button onclick="leggiDati()" style="background-color: #17a2b8;">📊 Leggi Dati</button>
+        <button onclick="pulisciDebug()" style="background-color: #6c757d;">🗑️ Pulisci Debug</button>
+    </div>
     
     <div id="risultato"></div>
 
@@ -126,10 +139,14 @@
     <script>
         // VARIABILI GLOBALI PER DEBUG
         let debugLog = [];
-        const supabase = supabase.createClient(
-            'https://mwgpmzeazwyitmsfqshi.supabase.co',
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im13Z3BtemVhend5aXRtc2Zxc2hpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4OTY2MzksImV4cCI6MjA3NjQ3MjYzOX0.YYDwT-rS2gT9DFuv-VmyqdE4C2kTAJBusbuprd4RcYg'
-        );
+        
+        // CORREZIONE: Client Supabase corretto
+        const supabaseUrl = 'https://mwgpmzeazwyitmsfqshi.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im13Z3BtemVhend5aXRtc2Zxc2hpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4OTY2MzksImV4cCI6MjA3NjQ3MjYzOX0.YYDwT-rS2gT9DFuv-VmyqdE4C2kTAJBusbuprd4RcYg';
+        
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        
+        console.log('Supabase client inizializzato:', !!supabase);
 
         // FUNZIONE DI LOG PER DEBUG
         function addDebugLog(tipo, messaggio, dati = null) {
@@ -138,7 +155,7 @@
                 timestamp,
                 tipo,
                 messaggio,
-                dati
+                dati: dati ? (typeof dati === 'object' ? JSON.stringify(dati, null, 2) : dati) : null
             };
             debugLog.push(logEntry);
             
@@ -152,16 +169,21 @@
         // AGGIORNA LA VISUALIZZAZIONE DEBUG
         function updateDebugDisplay() {
             const debugContent = document.getElementById('debug-content');
-            const ultimiLog = debugLog.slice(-10); // Mostra solo gli ultimi 10 log
+            const ultimiLog = debugLog.slice(-15); // Mostra solo gli ultimi 15 log
             
             let html = '';
             ultimiLog.forEach(log => {
                 const icon = log.tipo === 'SUCCESS' ? '✅' : 
                             log.tipo === 'ERROR' ? '❌' : 
+                            log.tipo === 'WARNING' ? '⚠️' :
                             log.tipo === 'INFO' ? 'ℹ️' : '🔍';
-                html += `<div class="debug-section">
+                
+                const cssClass = log.tipo === 'ERROR' ? 'debug-error' : 
+                               log.tipo === 'SUCCESS' ? 'debug-success' : '';
+                
+                html += `<div class="debug-section ${cssClass}">
                     <strong>${icon} [${log.timestamp}] ${log.tipo}:</strong> ${log.messaggio}
-                    ${log.dati ? `<br><small>${JSON.stringify(log.dati, null, 2)}</small>` : ''}
+                    ${log.dati ? `<br><small style="color: #666;">${log.dati}</small>` : ''}
                 </div>`;
             });
             
@@ -169,12 +191,20 @@
             debugContent.scrollTop = debugContent.scrollHeight;
         }
 
+        // PULISCI DEBUG
+        window.pulisciDebug = function() {
+            debugLog = [];
+            updateDebugDisplay();
+            addDebugLog('INFO', 'Debug pulito');
+        }
+
         // TEST CONNESSIONE AL DATABASE
         window.testConnessione = async function() {
             addDebugLog('INFO', 'Test connessione al database in corso...');
+            addDebugLog('INFO', 'URL Supabase:', supabaseUrl);
             
             try {
-                // Prova a leggere dalla tabella eventi
+                // Prova una query semplice
                 const { data, error, count } = await supabase
                     .from('eventi')
                     .select('*', { count: 'exact', head: true })
@@ -191,6 +221,7 @@
 
             } catch (error) {
                 addDebugLog('ERROR', `Errore connessione: ${error.message}`, error);
+                addDebugLog('INFO', 'Controlla: 1) Connessione internet 2) Credenziali Supabase 3) Tabelle esistono');
                 mostraRisultato(`❌ Errore connessione: ${error.message}`, 'error');
             }
         }
@@ -204,7 +235,7 @@
                     .from('eventi')
                     .select('*')
                     .order('created_at', { ascending: false })
-                    .limit(10);
+                    .limit(5);
 
                 if (error) {
                     throw error;
@@ -222,11 +253,11 @@
                     html += `
                         <div style="border: 1px solid #ccc; padding: 10px; margin: 5px 0; border-radius: 4px;">
                             <strong>ID:</strong> ${record.id}<br>
-                            <strong>Evento:</strong> ${record.dato}<br>
-                            <strong>Prodotto:</strong> ${record.nome_prodotto}<br>
-                            <strong>Prezzo:</strong> €${record.prezzo}<br>
-                            <strong>Quantità:</strong> ${record.quantita}<br>
-                            <strong>Data:</strong> ${new Date(record.created_at).toLocaleString('it-IT')}
+                            <strong>Evento:</strong> ${record.dato || 'N/A'}<br>
+                            <strong>Prodotto:</strong> ${record.nome_prodotto || 'N/A'}<br>
+                            <strong>Prezzo:</strong> €${record.prezzo || 'N/A'}<br>
+                            <strong>Quantità:</strong> ${record.quantita || 'N/A'}<br>
+                            <strong>Data:</strong> ${record.created_at ? new Date(record.created_at).toLocaleString('it-IT') : 'N/A'}
                         </div>
                     `;
                 });
@@ -245,7 +276,6 @@
             const nomeProdotto = document.getElementById('nomeProdotto').value;
             const prezzo = document.getElementById('prezzo').value;
             const quantita = document.getElementById('quantita').value;
-            const risultatoDiv = document.getElementById('risultato');
 
             // VALIDAZIONE
             if (!dato) {
@@ -320,7 +350,7 @@
                 addDebugLog('ERROR', `Errore durante l'inserimento: ${error.message}`, error);
                 mostraRisultato(
                     `❌ <strong>Errore:</strong> ${error.message}<br>
-                     <small>Controlla la console per dettagli</small>`,
+                     <small>Controlla la console del browser per dettagli (F12)</small>`,
                     'error'
                 );
             }
@@ -335,21 +365,25 @@
 
         // FUNZIONE PER RESETTARE IL FORM
         function resetForm() {
-            document.getElementById('datoInput').value = '';
-            document.getElementById('nomeProdotto').value = '';
-            document.getElementById('prezzo').value = '';
-            document.getElementById('quantita').value = '1';
+            // Mantieni i valori di test per debug
+            // document.getElementById('datoInput').value = '';
+            // document.getElementById('nomeProdotto').value = '';
+            // document.getElementById('prezzo').value = '';
+            // document.getElementById('quantita').value = '1';
         }
 
         // INIZIALIZZAZIONE
         document.addEventListener('DOMContentLoaded', function() {
             addDebugLog('INFO', 'Applicazione inizializzata');
-            addDebugLog('INFO', 'Supabase client configurato');
+            addDebugLog('INFO', 'Supabase client configurato', {
+                url: supabaseUrl,
+                keyPresent: !!supabaseKey
+            });
             
             // Test automatico della connessione al caricamento
             setTimeout(() => {
                 testConnessione();
-            }, 1000);
+            }, 500);
         });
 
         // AGGIUNGI EVENT LISTENER PER INVIO CON ENTER
