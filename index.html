@@ -1,66 +1,32 @@
 <!DOCTYPE html>
-<html lang="it">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>App Eventi</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-    <h1>Inserisci Evento</h1>
-    <input type="text" id="datoInput" placeholder="Inserisci dato">
-    <button onclick="inserisciEvento()">Salva</button>
-    <div id="risultato" style="margin-top: 10px;"></div>
+    <button onclick="insertData()" style="font-size: 24px; cursor: pointer;">
+        ➕ Inserisci Dato
+    </button>
 
     <script>
-        // INIZIALIZZA SUPABASE - versione sicura
-        const _supabase = supabase.createClient(
-            'https://mwgpmzeazwyitmsfqshi.supabase.co',
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im13Z3BtemVhend5aXRtc2Zxc2hpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4OTY2MzksImV4cCI6MjA3NjQ3MjYzOX0.YYDwT-rS2gT9DFuv-VmyqdE4C2kTAJBusbuprd4RcYg'
+        const supabase = window.supabase.createClient(
+            'TUO_SUPABASE_URL',
+            'TUO_SUPABASE_KEY'
         );
 
-        // FUNZIONE PRINCIPALE
-        window.inserisciEvento = async function() {
-            const dato = document.getElementById('datoInput').value;
-            const risultatoDiv = document.getElementById('risultato');
+        async function insertData() {
+            const { data, error } = await supabase
+                .from('tabella')
+                .insert([{ 
+                    colonna: 'Valore inserito ' + new Date().toLocaleString() 
+                }]);
             
-            if (!dato) {
-                risultatoDiv.innerHTML = '⚠️ Inserisci un dato';
-                return;
-            }
-
-            risultatoDiv.innerHTML = '⏳ Invio in corso...';
-
-            try {
-                const { data, error } = await _supabase
-                    .from('eventi')
-                    .insert([{ dato: dato }])
-                    .select();
-
-                if (error) {
-                    throw error;
-                }
-
-                if (data && data.length > 0) {
-                    risultatoDiv.innerHTML = 
-                        `✅ <strong>Successo!</strong><br>
-                         ID: ${data[0].id}<br>
-                         Dato: "${data[0].dato}"<br>
-                         Data: ${new Date(data[0].created_at).toLocaleString('it-IT')}`;
-                    
-                    // Reset input
-                    document.getElementById('datoInput').value = '';
-                }
-
-            } catch (error) {
-                console.error('Errore:', error);
-                risultatoDiv.innerHTML = 
-                    `❌ <strong>Errore:</strong> ${error.message}<br>
-                     <small>Controlla la console per dettagli</small>`;
+            if (error) {
+                alert('Errore: ' + error.message);
+            } else {
+                alert('Dato inserito con successo!');
             }
         }
-
-        console.log('✅ App caricata - pronta per inserimenti');
     </script>
 </body>
 </html>
