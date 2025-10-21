@@ -3,208 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Area Riservata - Eventi</title>
+    <title>App Eventi</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            padding: 20px; 
-            background: #f5f5f5;
-            max-width: 500px;
-            margin: 0 auto;
-        }
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        h1 { text-align: center; color: #333; margin-bottom: 30px; }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
-        input[type="email"], input[type="password"], input[type="text"] {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-            box-sizing: border-box;
-        }
-        button {
-            width: 100%;
-            padding: 12px;
-            background: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-bottom: 10px;
-        }
-        button:hover { background: #0056b3; }
-        button.secondary { background: #6c757d; }
-        button.secondary:hover { background: #545b62; }
-        button.success { background: #28a745; }
-        button.success:hover { background: #218838; }
-        .message {
-            padding: 10px;
-            border-radius: 5px;
-            margin: 10px 0;
-            text-align: center;
-        }
-        .success { background: #d4edda; color: #155724; }
-        .error { background: #f8d7da; color: #721c24; }
-        .info { background: #d1ecf1; color: #0c5460; }
-        .hidden { display: none; }
-        .user-info {
-            background: #e7f3ff;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        .tabella {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-        .tabella th, .tabella td {
-            padding: 10px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        .tabella th {
-            background: #f8f9fa;
-            font-weight: bold;
-        }
-    </style>
 </head>
 <body>
-    <div class="container">
-        <!-- AREA LOGIN -->
-        <div id="loginArea">
-            <h1>🔐 Area Riservata</h1>
-            <div id="loginMessage" class="message"></div>
-            
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" placeholder="tua-email@esempio.com">
-            </div>
-            
-            <div class="form-group">
-                <label for="password">Password:</label>
-                <input type="password" id="password" placeholder="La tua password">
-            </div>
-            
-            <button onclick="window.accedi()">Accedi</button>
-            <button class="secondary" onclick="window.registrati()">Registrati</button>
-            
-            <div style="margin-top: 20px; padding: 15px; background: #fff3cd; border-radius: 5px;">
-                <strong>Nota:</strong> Devi prima eseguire il codice SQL in Supabase per configurare le autorizzazioni.
-            </div>
-        </div>
-
-        <!-- AREA RISERVATA -->
-        <div id="areaRiservata" class="hidden">
-            <h1>📊 Gestione Eventi</h1>
-            <div id="userInfo" class="user-info"></div>
-            
-            <div id="contentMessage" class="message"></div>
-            
-            <!-- Form per inserire nuovi eventi -->
-            <div style="margin-bottom: 20px;">
-                <h3>Aggiungi Nuovo Evento</h3>
-                <input type="text" id="nuovoEvento" placeholder="Inserisci il dato dell'evento" style="margin-bottom: 10px;">
-                <button class="success" onclick="window.inserisciEvento()">➕ Aggiungi Evento</button>
-            </div>
-            
-            <button onclick="window.caricaEventi()">🔄 Aggiorna Eventi</button>
-            <button onclick="window.esci()" class="secondary">🚪 Esci</button>
-            
-            <div id="eventiContainer" style="margin-top: 20px;"></div>
-        </div>
-    </div>
+    <h1>Inserisci Evento</h1>
+    <input type="text" id="datoInput" placeholder="Inserisci dato">
+    <button onclick="inserisciEvento()">Salva</button>
+    <div id="risultato" style="margin-top: 10px;"></div>
 
     <script>
-        // INIZIALIZZA SUPABASE
-        const supabaseUrl = 'https://mwgpmzeazwyitmsfqshi.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im13Z3BtemVhend5aXRtc2Zxc2hpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4OTY2MzksImV4cCI6MjA3NjQ3MjYzOX0.YYDwT-rS2gT9DFuv-VmyqdE4C2kTAJBusbuprd4RcYg';
-        const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        // INIZIALIZZA SUPABASE - versione sicura
+        const _supabase = supabase.createClient(
+            'https://mwgpmzeazwyitmsfqshi.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im13Z3BtemVhend5aXRtc2Zxc2hpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4OTY2MzksImV4cCI6MjA3NjQ3MjYzOX0.YYDwT-rS2gT9DFuv-VmyqdE4C2kTAJBusbuprd4RcYg'
+        );
 
-        // FUNZIONI GLOBALI
-        window.accedi = async function() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const messageDiv = document.getElementById('loginMessage');
-
-            if (!email || !password) {
-                mostraMessaggio(messageDiv, 'Inserisci email e password', 'error');
-                return;
-            }
-
-            mostraMessaggio(messageDiv, 'Accesso in corso...', 'info');
-
-            try {
-                const { data, error } = await _supabase.auth.signInWithPassword({
-                    email: email,
-                    password: password
-                });
-
-                if (error) throw error;
-                mostraMessaggio(messageDiv, 'Accesso riuscito!', 'success');
-                
-            } catch (error) {
-                mostraMessaggio(messageDiv, 'Errore accesso: ' + error.message, 'error');
-            }
-        };
-
-        window.registrati = async function() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const messageDiv = document.getElementById('loginMessage');
-
-            if (!email || !password) {
-                mostraMessaggio(messageDiv, 'Inserisci email e password', 'error');
-                return;
-            }
-
-            if (password.length < 6) {
-                mostraMessaggio(messageDiv, 'La password deve essere di almeno 6 caratteri', 'error');
-                return;
-            }
-
-            mostraMessaggio(messageDiv, 'Registrazione in corso...', 'info');
-
-            try {
-                const { data, error } = await _supabase.auth.signUp({
-                    email: email,
-                    password: password
-                });
-
-                if (error) throw error;
-
-                if (data.user && data.user.identities && data.user.identities.length === 0) {
-                    mostraMessaggio(messageDiv, 'Questo utente è già registrato!', 'error');
-                    return;
-                }
-
-                mostraMessaggio(messageDiv, 'Registrazione completata! Controlla la tua email.', 'success');
-                
-            } catch (error) {
-                mostraMessaggio(messageDiv, 'Errore registrazione: ' + error.message, 'error');
-            }
-        };
-
+        // FUNZIONE PRINCIPALE
         window.inserisciEvento = async function() {
-            const dato = document.getElementById('nuovoEvento').value;
-            const messageDiv = document.getElementById('contentMessage');
-
+            const dato = document.getElementById('datoInput').value;
+            const risultatoDiv = document.getElementById('risultato');
+            
             if (!dato) {
-                mostraMessaggio(messageDiv, 'Inserisci un dato per l\'evento', 'error');
+                risultatoDiv.innerHTML = '⚠️ Inserisci un dato';
                 return;
             }
 
-            mostraMessaggio(messageDiv, 'Inserimento in corso...', 'info');
+            risultatoDiv.innerHTML = '⏳ Invio in corso...';
 
             try {
                 const { data, error } = await _supabase
@@ -212,104 +37,30 @@
                     .insert([{ dato: dato }])
                     .select();
 
-                if (error) throw error;
-
-                mostraMessaggio(messageDiv, 'Evento inserito con successo! ID: ' + data[0].id, 'success');
-                document.getElementById('nuovoEvento').value = '';
-                window.caricaEventi(); // Ricarica la lista
-                
-            } catch (error) {
-                mostraMessaggio(messageDiv, 'Errore inserimento: ' + error.message, 'error');
-            }
-        };
-
-        window.caricaEventi = async function() {
-            const messageDiv = document.getElementById('contentMessage');
-            const container = document.getElementById('eventiContainer');
-
-            mostraMessaggio(messageDiv, 'Caricamento eventi...', 'info');
-            container.innerHTML = '';
-
-            try {
-                const { data, error } = await _supabase
-                    .from('eventi')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-
-                if (error) throw error;
-
-                if (!data || data.length === 0) {
-                    container.innerHTML = '<div class="info">Nessun evento trovato</div>';
-                    return;
+                if (error) {
+                    throw error;
                 }
 
-                mostraMessaggio(messageDiv, `Trovati ${data.length} eventi`, 'success');
-
-                let html = '<table class="tabella">';
-                html += `
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Dato</th>
-                            <th>Data</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                `;
-
-                data.forEach(evento => {
-                    const dataOra = new Date(evento.created_at).toLocaleString('it-IT');
-                    html += `
-                        <tr>
-                            <td>${evento.id}</td>
-                            <td>${evento.dato}</td>
-                            <td>${dataOra}</td>
-                        </tr>
-                    `;
-                });
-
-                html += '</tbody></table>';
-                container.innerHTML = html;
+                if (data && data.length > 0) {
+                    risultatoDiv.innerHTML = 
+                        `✅ <strong>Successo!</strong><br>
+                         ID: ${data[0].id}<br>
+                         Dato: "${data[0].dato}"<br>
+                         Data: ${new Date(data[0].created_at).toLocaleString('it-IT')}`;
+                    
+                    // Reset input
+                    document.getElementById('datoInput').value = '';
+                }
 
             } catch (error) {
-                mostraMessaggio(messageDiv, 'Errore caricamento: ' + error.message, 'error');
+                console.error('Errore:', error);
+                risultatoDiv.innerHTML = 
+                    `❌ <strong>Errore:</strong> ${error.message}<br>
+                     <small>Controlla la console per dettagli</small>`;
             }
-        };
-
-        window.esci = async function() {
-            await _supabase.auth.signOut();
-        };
-
-        // FUNZIONI DI SUPPORTO
-        function mostraMessaggio(div, messaggio, tipo) {
-            div.innerHTML = messaggio;
-            div.className = `message ${tipo}`;
         }
 
-        function mostraAreaRiservata(user) {
-            document.getElementById('loginArea').classList.add('hidden');
-            document.getElementById('areaRiservata').classList.remove('hidden');
-            document.getElementById('userInfo').innerHTML = `<strong>Benvenuto:</strong> ${user.email}`;
-            window.caricaEventi();
-        }
-
-        function mostraLogin() {
-            document.getElementById('loginArea').classList.remove('hidden');
-            document.getElementById('areaRiservata').classList.add('hidden');
-        }
-
-        // GESTIONE AUTENTICAZIONE
-        _supabase.auth.getSession().then(({ data: { session } }) => {
-            if (session) mostraAreaRiservata(session.user);
-        });
-
-        _supabase.auth.onAuthStateChange((event, session) => {
-            if (event === 'SIGNED_IN' && session) {
-                mostraAreaRiservata(session.user);
-            } else if (event === 'SIGNED_OUT') {
-                mostraLogin();
-            }
-        });
+        console.log('✅ App caricata - pronta per inserimenti');
     </script>
 </body>
 </html>
