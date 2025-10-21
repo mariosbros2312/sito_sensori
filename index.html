@@ -2,31 +2,139 @@
 <html>
 <head>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .container {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+    </style>
 </head>
 <body>
-    <button onclick="insertData()" style="font-size: 24px; cursor: pointer;">
-        ➕ Inserisci Dato
-    </button>
+    <div class="container">
+        <h2>Inserisci Nuovo Prodotto</h2>
+        
+        <div class="form-group">
+            <label for="dato">Tipo Evento:</label>
+            <input type="text" id="dato" placeholder="Es: vendita, ordine, etc.">
+        </div>
+
+        <div class="form-group">
+            <label for="nomeProdotto">Nome Prodotto:</label>
+            <input type="text" id="nomeProdotto" placeholder="Es: iPhone 15, MacBook Pro">
+        </div>
+
+        <div class="form-group">
+            <label for="prezzo">Prezzo (€):</label>
+            <input type="number" id="prezzo" step="0.01" min="0" placeholder="0.00">
+        </div>
+
+        <div class="form-group">
+            <label for="quantita">Quantità:</label>
+            <input type="number" id="quantita" min="1" value="1">
+        </div>
+
+        <button onclick="insertData()">
+            ➕ Inserisci Prodotto
+        </button>
+    </div>
 
     <script>
+        // SOSTITUISCI CON I TUOI DATI SUPABASE
         const supabase = window.supabase.createClient(
-            'TUO_SUPABASE_URL',
-            'TUO_SUPABASE_KEY'
+            'TUO_SUPABASE_URL',  // Sostituisci con il tuo URL Supabase
+            'TUO_SUPABASE_KEY'   // Sostituisci con la tua API Key Supabase
         );
 
         async function insertData() {
-            const { data, error } = await supabase
-                .from('tabella')
-                .insert([{ 
-                    colonna: 'Valore inserito ' + new Date().toLocaleString() 
-                }]);
-            
-            if (error) {
-                alert('Errore: ' + error.message);
-            } else {
-                alert('Dato inserito con successo!');
+            // Recupera i valori dai campi
+            const dato = document.getElementById('dato').value;
+            const nomeProdotto = document.getElementById('nomeProdotto').value;
+            const prezzo = document.getElementById('prezzo').value;
+            const quantita = document.getElementById('quantita').value;
+
+            // Validazione dei campi
+            if (!dato || !nomeProdotto || !prezzo || !quantita) {
+                alert('Per favore, compila tutti i campi!');
+                return;
+            }
+
+            if (parseFloat(prezzo) <= 0) {
+                alert('Il prezzo deve essere maggiore di 0!');
+                return;
+            }
+
+            if (parseInt(quantita) <= 0) {
+                alert('La quantità deve essere maggiore di 0!');
+                return;
+            }
+
+            try {
+                const { data, error } = await supabase
+                    .from('eventi')  // Cambiato da 'tabella' a 'eventi'
+                    .insert([{ 
+                        dato: dato,
+                        nome_prodotto: nomeProdotto,
+                        prezzo: parseFloat(prezzo),
+                        quantita: parseInt(quantita)
+                    }]);
+                
+                if (error) {
+                    alert('Errore: ' + error.message);
+                } else {
+                    alert('Prodotto inserito con successo!');
+                    
+                    // Reset dei campi dopo l'inserimento
+                    document.getElementById('dato').value = '';
+                    document.getElementById('nomeProdotto').value = '';
+                    document.getElementById('prezzo').value = '';
+                    document.getElementById('quantita').value = '1';
+                }
+            } catch (err) {
+                alert('Errore di connessione: ' + err.message);
             }
         }
+
+        // Aggiungi funzionalità per premere Enter per inserire
+        document.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                insertData();
+            }
+        });
     </script>
 </body>
 </html>
