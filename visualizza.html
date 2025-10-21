@@ -10,7 +10,7 @@
             font-family: Arial, sans-serif; 
             padding: 20px; 
             background: #f5f5f5;
-            max-width: 400px;
+            max-width: 500px;
             margin: 0 auto;
         }
         .container {
@@ -22,7 +22,7 @@
         h1 { text-align: center; color: #333; margin-bottom: 30px; }
         .form-group { margin-bottom: 20px; }
         label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
-        input[type="email"], input[type="password"] {
+        input[type="email"], input[type="password"], input[type="text"] {
             width: 100%;
             padding: 12px;
             border: 1px solid #ddd;
@@ -44,6 +44,8 @@
         button:hover { background: #0056b3; }
         button.secondary { background: #6c757d; }
         button.secondary:hover { background: #545b62; }
+        button.success { background: #28a745; }
+        button.success:hover { background: #218838; }
         .message {
             padding: 10px;
             border-radius: 5px;
@@ -61,6 +63,20 @@
             margin-bottom: 20px;
             text-align: center;
         }
+        .tabella {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .tabella th, .tabella td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .tabella th {
+            background: #f8f9fa;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -72,7 +88,7 @@
             
             <div class="form-group">
                 <label for="email">Email:</label>
-                <input type="email" id="email" placeholder="la-tua-email@esempio.com">
+                <input type="email" id="email" placeholder="tua-email@esempio.com">
             </div>
             
             <div class="form-group">
@@ -82,31 +98,40 @@
             
             <button onclick="window.accedi()">Accedi</button>
             <button class="secondary" onclick="window.registrati()">Registrati</button>
+            
+            <div style="margin-top: 20px; padding: 15px; background: #fff3cd; border-radius: 5px;">
+                <strong>Nota:</strong> Devi prima eseguire il codice SQL in Supabase per configurare le autorizzazioni.
+            </div>
         </div>
 
-        <!-- AREA RISERVATA (visibile solo dopo login) -->
+        <!-- AREA RISERVATA -->
         <div id="areaRiservata" class="hidden">
-            <h1>📊 Eventi</h1>
+            <h1>📊 Gestione Eventi</h1>
             <div id="userInfo" class="user-info"></div>
             
             <div id="contentMessage" class="message"></div>
             
-            <button onclick="window.caricaEventi()">🔄 Carica Eventi</button>
-            <button onclick="window.esci()" class="secondary">Esci</button>
+            <!-- Form per inserire nuovi eventi -->
+            <div style="margin-bottom: 20px;">
+                <h3>Aggiungi Nuovo Evento</h3>
+                <input type="text" id="nuovoEvento" placeholder="Inserisci il dato dell'evento" style="margin-bottom: 10px;">
+                <button class="success" onclick="window.inserisciEvento()">➕ Aggiungi Evento</button>
+            </div>
+            
+            <button onclick="window.caricaEventi()">🔄 Aggiorna Eventi</button>
+            <button onclick="window.esci()" class="secondary">🚪 Esci</button>
             
             <div id="eventiContainer" style="margin-top: 20px;"></div>
         </div>
     </div>
 
     <script>
-        // INIZIALIZZA SUPABASE PRIMA DI TUTTO
+        // INIZIALIZZA SUPABASE
         const supabaseUrl = 'https://mwgpmzeazwyitmsfqshi.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im13Z3BtemVhend5aXRtc2Zxc2hpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4OTY2MzksImV4cCI6MjA3NjQ3MjYzOX0.YYDwT-rS2gT9DFuv-VmyqdE4C2kTAJBusbuprd4RcYg';
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-        console.log('✅ Supabase inizializzato');
-
-        // RENDE LE FUNZIONI GLOBALI
+        // FUNZIONI GLOBALI
         window.accedi = async function() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
@@ -126,7 +151,6 @@
                 });
 
                 if (error) throw error;
-
                 mostraMessaggio(messageDiv, 'Accesso riuscito!', 'success');
                 
             } catch (error) {
@@ -164,17 +188,38 @@
                     return;
                 }
 
-                mostraMessaggio(messageDiv, 'Registrazione completata! Controlla la tua email per la verifica.', 'success');
+                mostraMessaggio(messageDiv, 'Registrazione completata! Controlla la tua email.', 'success');
                 
             } catch (error) {
                 mostraMessaggio(messageDiv, 'Errore registrazione: ' + error.message, 'error');
             }
         };
 
-        window.esci = async function() {
-            const { error } = await _supabase.auth.signOut();
-            if (error) {
-                console.error('Errore durante il logout:', error);
+        window.inserisciEvento = async function() {
+            const dato = document.getElementById('nuovoEvento').value;
+            const messageDiv = document.getElementById('contentMessage');
+
+            if (!dato) {
+                mostraMessaggio(messageDiv, 'Inserisci un dato per l\'evento', 'error');
+                return;
+            }
+
+            mostraMessaggio(messageDiv, 'Inserimento in corso...', 'info');
+
+            try {
+                const { data, error } = await _supabase
+                    .from('eventi')
+                    .insert([{ dato: dato }])
+                    .select();
+
+                if (error) throw error;
+
+                mostraMessaggio(messageDiv, 'Evento inserito con successo! ID: ' + data[0].id, 'success');
+                document.getElementById('nuovoEvento').value = '';
+                window.caricaEventi(); // Ricarica la lista
+                
+            } catch (error) {
+                mostraMessaggio(messageDiv, 'Errore inserimento: ' + error.message, 'error');
             }
         };
 
@@ -194,19 +239,19 @@
                 if (error) throw error;
 
                 if (!data || data.length === 0) {
-                    mostraMessaggio(messageDiv, 'Nessun evento trovato', 'info');
+                    container.innerHTML = '<div class="info">Nessun evento trovato</div>';
                     return;
                 }
 
                 mostraMessaggio(messageDiv, `Trovati ${data.length} eventi`, 'success');
 
-                let html = '<table style="width: 100%; border-collapse: collapse; margin-top: 10px;">';
+                let html = '<table class="tabella">';
                 html += `
                     <thead>
-                        <tr style="background: #f8f9fa;">
-                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">ID</th>
-                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Dato</th>
-                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Data</th>
+                        <tr>
+                            <th>ID</th>
+                            <th>Dato</th>
+                            <th>Data</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -216,9 +261,9 @@
                     const dataOra = new Date(evento.created_at).toLocaleString('it-IT');
                     html += `
                         <tr>
-                            <td style="padding: 10px; border-bottom: 1px solid #ddd;">${evento.id}</td>
-                            <td style="padding: 10px; border-bottom: 1px solid #ddd;">${evento.dato}</td>
-                            <td style="padding: 10px; border-bottom: 1px solid #ddd;">${dataOra}</td>
+                            <td>${evento.id}</td>
+                            <td>${evento.dato}</td>
+                            <td>${dataOra}</td>
                         </tr>
                     `;
                 });
@@ -231,6 +276,10 @@
             }
         };
 
+        window.esci = async function() {
+            await _supabase.auth.signOut();
+        };
+
         // FUNZIONI DI SUPPORTO
         function mostraMessaggio(div, messaggio, tipo) {
             div.innerHTML = messaggio;
@@ -240,40 +289,27 @@
         function mostraAreaRiservata(user) {
             document.getElementById('loginArea').classList.add('hidden');
             document.getElementById('areaRiservata').classList.remove('hidden');
-            
-            document.getElementById('userInfo').innerHTML = `
-                <strong>Benvenuto!</strong><br>
-                ${user.email}
-            `;
-            
-            // Carica gli eventi automaticamente
+            document.getElementById('userInfo').innerHTML = `<strong>Benvenuto:</strong> ${user.email}`;
             window.caricaEventi();
         }
 
         function mostraLogin() {
             document.getElementById('loginArea').classList.remove('hidden');
             document.getElementById('areaRiservata').classList.add('hidden');
-            document.getElementById('loginMessage').innerHTML = '';
         }
 
-        // CONTROLLA SE L'UTENTE È GIÀ LOGGATO ALL'AVVIO
+        // GESTIONE AUTENTICAZIONE
         _supabase.auth.getSession().then(({ data: { session } }) => {
-            if (session) {
-                mostraAreaRiservata(session.user);
-            }
+            if (session) mostraAreaRiservata(session.user);
         });
 
-        // ASCOLTA CAMBIAMENTI DI AUTENTICAZIONE
         _supabase.auth.onAuthStateChange((event, session) => {
-            console.log('Evento auth:', event);
             if (event === 'SIGNED_IN' && session) {
                 mostraAreaRiservata(session.user);
             } else if (event === 'SIGNED_OUT') {
                 mostraLogin();
             }
         });
-
-        console.log('✅ Tutte le funzioni inizializzate');
     </script>
 </body>
 </html>
