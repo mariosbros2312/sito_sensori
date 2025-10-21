@@ -39,10 +39,26 @@
         button:hover {
             background-color: #0056b3;
         }
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
         #risultato {
             margin-top: 20px;
             padding: 10px;
             border-radius: 4px;
+        }
+        #debug {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
         }
         .success {
             background-color: #d4edda;
@@ -58,6 +74,18 @@
             background-color: #d1ecf1;
             border: 1px solid #bee5eb;
             color: #0c5460;
+        }
+        .debug-info {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+        .debug-section {
+            margin-bottom: 10px;
+        }
+        .debug-title {
+            font-weight: bold;
+            margin-bottom: 5px;
         }
     </style>
 </head>
@@ -85,15 +113,131 @@
     </div>
 
     <button onclick="inserisciEvento()">💾 Salva Prodotto</button>
+    <button onclick="testConnessione()" style="background-color: #28a745;">🔍 Test Connessione</button>
+    <button onclick="leggiDati()" style="background-color: #17a2b8;">📊 Leggi Dati</button>
     
     <div id="risultato"></div>
 
+    <div id="debug">
+        <div class="debug-title">🔧 Debug Console</div>
+        <div id="debug-content">Inizializzazione in corso...</div>
+    </div>
+
     <script>
-        // INIZIALIZZA SUPABASE
+        // VARIABILI GLOBALI PER DEBUG
+        let debugLog = [];
         const supabase = supabase.createClient(
             'https://mwgpmzeazwyitmsfqshi.supabase.co',
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im13Z3BtemVhend5aXRtc2Zxc2hpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4OTY2MzksImV4cCI6MjA3NjQ3MjYzOX0.YYDwT-rS2gT9DFuv-VmyqdE4C2kTAJBusbuprd4RcYg'
         );
+
+        // FUNZIONE DI LOG PER DEBUG
+        function addDebugLog(tipo, messaggio, dati = null) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = {
+                timestamp,
+                tipo,
+                messaggio,
+                dati
+            };
+            debugLog.push(logEntry);
+            
+            // Aggiorna la visualizzazione debug
+            updateDebugDisplay();
+            
+            // Log anche nella console del browser
+            console.log(`[${timestamp}] ${tipo}: ${messaggio}`, dati || '');
+        }
+
+        // AGGIORNA LA VISUALIZZAZIONE DEBUG
+        function updateDebugDisplay() {
+            const debugContent = document.getElementById('debug-content');
+            const ultimiLog = debugLog.slice(-10); // Mostra solo gli ultimi 10 log
+            
+            let html = '';
+            ultimiLog.forEach(log => {
+                const icon = log.tipo === 'SUCCESS' ? '✅' : 
+                            log.tipo === 'ERROR' ? '❌' : 
+                            log.tipo === 'INFO' ? 'ℹ️' : '🔍';
+                html += `<div class="debug-section">
+                    <strong>${icon} [${log.timestamp}] ${log.tipo}:</strong> ${log.messaggio}
+                    ${log.dati ? `<br><small>${JSON.stringify(log.dati, null, 2)}</small>` : ''}
+                </div>`;
+            });
+            
+            debugContent.innerHTML = html;
+            debugContent.scrollTop = debugContent.scrollHeight;
+        }
+
+        // TEST CONNESSIONE AL DATABASE
+        window.testConnessione = async function() {
+            addDebugLog('INFO', 'Test connessione al database in corso...');
+            
+            try {
+                // Prova a leggere dalla tabella eventi
+                const { data, error, count } = await supabase
+                    .from('eventi')
+                    .select('*', { count: 'exact', head: true })
+                    .limit(1);
+
+                if (error) {
+                    throw error;
+                }
+
+                addDebugLog('SUCCESS', `Connessione riuscita! Tabella 'eventi' accessibile`);
+                addDebugLog('INFO', `Numero totale di record: ${count}`);
+                
+                mostraRisultato(`✅ Connessione al database riuscita!<br>Record totali: ${count}`, 'success');
+
+            } catch (error) {
+                addDebugLog('ERROR', `Errore connessione: ${error.message}`, error);
+                mostraRisultato(`❌ Errore connessione: ${error.message}`, 'error');
+            }
+        }
+
+        // LEGGI TUTTI I DATI
+        window.leggiDati = async function() {
+            addDebugLog('INFO', 'Lettura di tutti i dati dalla tabella...');
+            
+            try {
+                const { data, error } = await supabase
+                    .from('eventi')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .limit(10);
+
+                if (error) {
+                    throw error;
+                }
+
+                addDebugLog('SUCCESS', `Letti ${data.length} record dalla tabella`);
+                
+                if (data.length === 0) {
+                    mostraRisultato('📭 Nessun dato trovato nella tabella', 'debug-info');
+                    return;
+                }
+
+                let html = `<strong>Ultimi ${data.length} record:</strong><br><br>`;
+                data.forEach(record => {
+                    html += `
+                        <div style="border: 1px solid #ccc; padding: 10px; margin: 5px 0; border-radius: 4px;">
+                            <strong>ID:</strong> ${record.id}<br>
+                            <strong>Evento:</strong> ${record.dato}<br>
+                            <strong>Prodotto:</strong> ${record.nome_prodotto}<br>
+                            <strong>Prezzo:</strong> €${record.prezzo}<br>
+                            <strong>Quantità:</strong> ${record.quantita}<br>
+                            <strong>Data:</strong> ${new Date(record.created_at).toLocaleString('it-IT')}
+                        </div>
+                    `;
+                });
+                
+                mostraRisultato(html, 'debug-info');
+
+            } catch (error) {
+                addDebugLog('ERROR', `Errore lettura dati: ${error.message}`, error);
+                mostraRisultato(`❌ Errore lettura dati: ${error.message}`, 'error');
+            }
+        }
 
         // FUNZIONE PRINCIPALE PER INSERIRE EVENTO
         window.inserisciEvento = async function() {
@@ -105,21 +249,32 @@
 
             // VALIDAZIONE
             if (!dato) {
+                addDebugLog('ERROR', 'Tipo evento mancante');
                 mostraRisultato('⚠️ Inserisci un tipo evento', 'error');
                 return;
             }
             if (!nomeProdotto) {
+                addDebugLog('ERROR', 'Nome prodotto mancante');
                 mostraRisultato('⚠️ Inserisci il nome del prodotto', 'error');
                 return;
             }
             if (!prezzo || parseFloat(prezzo) <= 0) {
+                addDebugLog('ERROR', 'Prezzo non valido');
                 mostraRisultato('⚠️ Inserisci un prezzo valido', 'error');
                 return;
             }
             if (!quantita || parseInt(quantita) <= 0) {
+                addDebugLog('ERROR', 'Quantità non valida');
                 mostraRisultato('⚠️ Inserisci una quantità valida', 'error');
                 return;
             }
+
+            addDebugLog('INFO', 'Tentativo di inserimento dati', {
+                dato,
+                nomeProdotto,
+                prezzo,
+                quantita
+            });
 
             mostraRisultato('⏳ Invio in corso...', 'loading');
 
@@ -142,6 +297,8 @@
                     const evento = data[0];
                     const totale = evento.prezzo * evento.quantita;
                     
+                    addDebugLog('SUCCESS', 'Dati inseriti correttamente', evento);
+                    
                     const messaggioSuccesso = `
                         ✅ <strong>Prodotto salvato con successo!</strong><br><br>
                         <strong>Dettagli:</strong><br>
@@ -160,6 +317,7 @@
 
             } catch (error) {
                 console.error('Errore:', error);
+                addDebugLog('ERROR', `Errore durante l'inserimento: ${error.message}`, error);
                 mostraRisultato(
                     `❌ <strong>Errore:</strong> ${error.message}<br>
                      <small>Controlla la console per dettagli</small>`,
@@ -183,6 +341,17 @@
             document.getElementById('quantita').value = '1';
         }
 
+        // INIZIALIZZAZIONE
+        document.addEventListener('DOMContentLoaded', function() {
+            addDebugLog('INFO', 'Applicazione inizializzata');
+            addDebugLog('INFO', 'Supabase client configurato');
+            
+            // Test automatico della connessione al caricamento
+            setTimeout(() => {
+                testConnessione();
+            }, 1000);
+        });
+
         // AGGIUNGI EVENT LISTENER PER INVIO CON ENTER
         document.addEventListener('keypress', function(event) {
             if (event.key === 'Enter') {
@@ -190,7 +359,6 @@
             }
         });
 
-        console.log('✅ App caricata - pronta per inserimenti prodotti');
     </script>
 </body>
 </html>
