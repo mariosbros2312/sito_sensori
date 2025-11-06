@@ -1,398 +1,244 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>App Eventi - Gestione Prodotti</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <title>Modulo di Contatto</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             max-width: 600px;
-            margin: 0 auto;
+            margin: 50px auto;
             padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .form-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
         }
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
         label {
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
+            color: #555;
         }
-        input, select {
+        input[type="text"],
+        input[type="tel"],
+        input[type="email"] {
             width: 100%;
-            padding: 8px;
+            padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
+            font-size: 16px;
             box-sizing: border-box;
         }
+        input:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+        }
+        .error {
+            color: #d32f2f;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+        .required::after {
+            content: " *";
+            color: #d32f2f;
+        }
         button {
-            background-color: #007bff;
+            background-color: #4CAF50;
             color: white;
-            padding: 10px 20px;
+            padding: 12px 30px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
-            margin: 5px;
+            width: 100%;
+            margin-top: 10px;
         }
         button:hover {
-            background-color: #0056b3;
+            background-color: #45a049;
         }
         button:disabled {
-            background-color: #6c757d;
+            background-color: #cccccc;
             cursor: not-allowed;
         }
-        #risultato {
-            margin-top: 20px;
-            padding: 10px;
-            border-radius: 4px;
-        }
-        #debug {
-            margin-top: 20px;
+        .success-message {
+            background-color: #dff0d8;
+            color: #3c763d;
             padding: 15px;
-            background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
             border-radius: 4px;
-            font-family: monospace;
-            font-size: 12px;
-            white-space: pre-wrap;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        .success {
-            background-color: #d4edda;
-            border: 1px solid #c3e6cb;
-            color: #155724;
-        }
-        .error {
-            background-color: #f8d7da;
-            border: 1px solid #f5c6cb;
-            color: #721c24;
-        }
-        .loading {
-            background-color: #d1ecf1;
-            border: 1px solid #bee5eb;
-            color: #0c5460;
-        }
-        .debug-info {
-            background-color: #fff3cd;
-            border: 1px solid #ffeaa7;
-            color: #856404;
-        }
-        .debug-section {
-            margin-bottom: 10px;
-            padding: 5px;
-            border-left: 3px solid #007bff;
-        }
-        .debug-error {
-            border-left-color: #dc3545;
-        }
-        .debug-success {
-            border-left-color: #28a745;
-        }
-        .debug-title {
-            font-weight: bold;
-            margin-bottom: 10px;
-            font-size: 14px;
+            margin-top: 20px;
+            display: none;
         }
     </style>
 </head>
 <body>
-    <h1>📦 Gestione Prodotti - DEBUG</h1>
-    
-    <div class="form-group">
-        <label for="datoInput">Tipo Evento:</label>
-        <input type="text" id="datoInput" placeholder="Es: vendita, ordine, rifornimento..." value="test">
-    </div>
+    <div class="form-container">
+        <h1>Modulo di Contatto</h1>
+        <form id="contactForm">
+            <div class="form-group">
+                <label for="nome" class="required">Nome</label>
+                <input type="text" id="nome" name="nome" required>
+                <div class="error" id="nomeError">Il nome è obbligatorio</div>
+            </div>
 
-    <div class="form-group">
-        <label for="nomeProdotto">Nome Prodotto:</label>
-        <input type="text" id="nomeProdotto" placeholder="Es: iPhone 15, MacBook Pro..." value="Prodotto Test">
-    </div>
+            <div class="form-group">
+                <label for="cognome" class="required">Cognome</label>
+                <input type="text" id="cognome" name="cognome" required>
+                <div class="error" id="cognomeError">Il cognome è obbligatorio</div>
+            </div>
 
-    <div class="form-group">
-        <label for="prezzo">Prezzo (€):</label>
-        <input type="number" id="prezzo" placeholder="0.00" step="0.01" min="0" value="10.50">
-    </div>
+            <div class="form-group">
+                <label for="telefono" class="required">Telefono</label>
+                <input type="tel" id="telefono" name="telefono" 
+                       pattern="[0-9]{10}" 
+                       title="Inserisci 10 cifre numeriche" 
+                       required>
+                <div class="error" id="telefonoError">Il telefono deve contenere esattamente 10 cifre numeriche</div>
+            </div>
 
-    <div class="form-group">
-        <label for="quantita">Quantità:</label>
-        <input type="number" id="quantita" placeholder="1" min="1" value="2">
-    </div>
+            <div class="form-group">
+                <label for="email">Email (facoltativa)</label>
+                <input type="email" id="email" name="email">
+                <div class="error" id="emailError">Inserisci un indirizzo email valido</div>
+            </div>
 
-    <div>
-        <button onclick="inserisciEvento()">💾 Salva Prodotto</button>
-        <button onclick="testConnessione()" style="background-color: #28a745;">🔍 Test Connessione</button>
-        <button onclick="leggiDati()" style="background-color: #17a2b8;">📊 Leggi Dati</button>
-        <button onclick="pulisciDebug()" style="background-color: #6c757d;">🗑️ Pulisci Debug</button>
-    </div>
-    
-    <div id="risultato"></div>
+            <button type="submit" id="submitBtn">Invia Dati</button>
+        </form>
 
-    <div id="debug">
-        <div class="debug-title">🔧 Debug Console</div>
-        <div id="debug-content">Inizializzazione in corso...</div>
+        <div class="success-message" id="successMessage">
+            Dati inviati con successo!
+        </div>
     </div>
 
     <script>
-        // VARIABILI GLOBALI PER DEBUG
-        let debugLog = [];
-        
-        // CORREZIONE: Client Supabase corretto
-        const supabaseUrl = 'https://mwgpmzeazwyitmsfqshi.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im13Z3BtemVhend5aXRtc2Zxc2hpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4OTY2MzksImV4cCI6MjA3NjQ3MjYzOX0.YYDwT-rS2gT9DFuv-VmyqdE4C2kTAJBusbuprd4RcYg';
-        
-        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-        
-        console.log('Supabase client inizializzato:', !!supabase);
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Reset errori precedenti
+            resetErrors();
+            
+            // Validazione
+            if (validateForm()) {
+                sendDataToN8N();
+            }
+        });
 
-        // FUNZIONE DI LOG PER DEBUG
-        function addDebugLog(tipo, messaggio, dati = null) {
-            const timestamp = new Date().toLocaleTimeString();
-            const logEntry = {
-                timestamp,
-                tipo,
-                messaggio,
-                dati: dati ? (typeof dati === 'object' ? JSON.stringify(dati, null, 2) : dati) : null
+        // Validazione real-time per telefono (solo numeri)
+        document.getElementById('telefono').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+
+        function resetErrors() {
+            const errors = document.querySelectorAll('.error');
+            errors.forEach(error => error.style.display = 'none');
+        }
+
+        function showError(fieldId, message) {
+            const errorElement = document.getElementById(fieldId + 'Error');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+
+        function validateForm() {
+            let isValid = true;
+
+            // Validazione Nome
+            const nome = document.getElementById('nome').value.trim();
+            if (!nome) {
+                showError('nome', 'Il nome è obbligatorio');
+                isValid = false;
+            }
+
+            // Validazione Cognome
+            const cognome = document.getElementById('cognome').value.trim();
+            if (!cognome) {
+                showError('cognome', 'Il cognome è obbligatorio');
+                isValid = false;
+            }
+
+            // Validazione Telefono
+            const telefono = document.getElementById('telefono').value.trim();
+            if (!telefono) {
+                showError('telefono', 'Il telefono è obbligatorio');
+                isValid = false;
+            } else if (!/^\d{10}$/.test(telefono)) {
+                showError('telefono', 'Il telefono deve contenere esattamente 10 cifre numeriche');
+                isValid = false;
+            }
+
+            // Validazione Email (facoltativa ma se presente deve essere valida)
+            const email = document.getElementById('email').value.trim();
+            if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                showError('email', 'Inserisci un indirizzo email valido');
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        async function sendDataToN8N() {
+            const submitBtn = document.getElementById('submitBtn');
+            const successMessage = document.getElementById('successMessage');
+            
+            // Disabilita il pulsante durante l'invio
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Invio in corso...';
+
+            const formData = {
+                nome: document.getElementById('nome').value.trim(),
+                cognome: document.getElementById('cognome').value.trim(),
+                telefono: document.getElementById('telefono').value.trim(),
+                email: document.getElementById('email').value.trim() || null
             };
-            debugLog.push(logEntry);
-            
-            // Aggiorna la visualizzazione debug
-            updateDebugDisplay();
-            
-            // Log anche nella console del browser
-            console.log(`[${timestamp}] ${tipo}: ${messaggio}`, dati || '');
-        }
 
-        // AGGIORNA LA VISUALIZZAZIONE DEBUG
-        function updateDebugDisplay() {
-            const debugContent = document.getElementById('debug-content');
-            const ultimiLog = debugLog.slice(-15); // Mostra solo gli ultimi 15 log
-            
-            let html = '';
-            ultimiLog.forEach(log => {
-                const icon = log.tipo === 'SUCCESS' ? '✅' : 
-                            log.tipo === 'ERROR' ? '❌' : 
-                            log.tipo === 'WARNING' ? '⚠️' :
-                            log.tipo === 'INFO' ? 'ℹ️' : '🔍';
-                
-                const cssClass = log.tipo === 'ERROR' ? 'debug-error' : 
-                               log.tipo === 'SUCCESS' ? 'debug-success' : '';
-                
-                html += `<div class="debug-section ${cssClass}">
-                    <strong>${icon} [${log.timestamp}] ${log.tipo}:</strong> ${log.messaggio}
-                    ${log.dati ? `<br><small style="color: #666;">${log.dati}</small>` : ''}
-                </div>`;
-            });
-            
-            debugContent.innerHTML = html;
-            debugContent.scrollTop = debugContent.scrollHeight;
-        }
-
-        // PULISCI DEBUG
-        window.pulisciDebug = function() {
-            debugLog = [];
-            updateDebugDisplay();
-            addDebugLog('INFO', 'Debug pulito');
-        }
-
-        // TEST CONNESSIONE AL DATABASE
-        window.testConnessione = async function() {
-            addDebugLog('INFO', 'Test connessione al database in corso...');
-            addDebugLog('INFO', 'URL Supabase:', supabaseUrl);
-            
             try {
-                // Prova una query semplice
-                const { data, error, count } = await supabase
-                    .from('eventi')
-                    .select('*', { count: 'exact', head: true })
-                    .limit(1);
-
-                if (error) {
-                    throw error;
-                }
-
-                addDebugLog('SUCCESS', `Connessione riuscita! Tabella 'eventi' accessibile`);
-                addDebugLog('INFO', `Numero totale di record: ${count}`);
+                // SOSTITUISCI QUESTI DATI CON I TUOI
+                const n8nWebhookUrl = 'http://localhost:5678/webhook-test/webhook/form-contatto';
                 
-                mostraRisultato(`✅ Connessione al database riuscita!<br>Record totali: ${count}`, 'success');
-
-            } catch (error) {
-                addDebugLog('ERROR', `Errore connessione: ${error.message}`, error);
-                addDebugLog('INFO', 'Controlla: 1) Connessione internet 2) Credenziali Supabase 3) Tabelle esistono');
-                mostraRisultato(`❌ Errore connessione: ${error.message}`, 'error');
-            }
-        }
-
-        // LEGGI TUTTI I DATI
-        window.leggiDati = async function() {
-            addDebugLog('INFO', 'Lettura di tutti i dati dalla tabella...');
-            
-            try {
-                const { data, error } = await supabase
-                    .from('eventi')
-                    .select('*')
-                    .order('created_at', { ascending: false })
-                    .limit(5);
-
-                if (error) {
-                    throw error;
-                }
-
-                addDebugLog('SUCCESS', `Letti ${data.length} record dalla tabella`);
-                
-                if (data.length === 0) {
-                    mostraRisultato('📭 Nessun dato trovato nella tabella', 'debug-info');
-                    return;
-                }
-
-                let html = `<strong>Ultimi ${data.length} record:</strong><br><br>`;
-                data.forEach(record => {
-                    html += `
-                        <div style="border: 1px solid #ccc; padding: 10px; margin: 5px 0; border-radius: 4px;">
-                            <strong>ID:</strong> ${record.id}<br>
-                            <strong>Evento:</strong> ${record.dato || 'N/A'}<br>
-                            <strong>Prodotto:</strong> ${record.nome_prodotto || 'N/A'}<br>
-                            <strong>Prezzo:</strong> €${record.prezzo || 'N/A'}<br>
-                            <strong>Quantità:</strong> ${record.quantita || 'N/A'}<br>
-                            <strong>Data:</strong> ${record.created_at ? new Date(record.created_at).toLocaleString('it-IT') : 'N/A'}
-                        </div>
-                    `;
+                const response = await fetch(n8nWebhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
                 });
-                
-                mostraRisultato(html, 'debug-info');
 
-            } catch (error) {
-                addDebugLog('ERROR', `Errore lettura dati: ${error.message}`, error);
-                mostraRisultato(`❌ Errore lettura dati: ${error.message}`, 'error');
-            }
-        }
-
-        // FUNZIONE PRINCIPALE PER INSERIRE EVENTO
-        window.inserisciEvento = async function() {
-            const dato = document.getElementById('datoInput').value;
-            const nomeProdotto = document.getElementById('nomeProdotto').value;
-            const prezzo = document.getElementById('prezzo').value;
-            const quantita = document.getElementById('quantita').value;
-
-            // VALIDAZIONE
-            if (!dato) {
-                addDebugLog('ERROR', 'Tipo evento mancante');
-                mostraRisultato('⚠️ Inserisci un tipo evento', 'error');
-                return;
-            }
-            if (!nomeProdotto) {
-                addDebugLog('ERROR', 'Nome prodotto mancante');
-                mostraRisultato('⚠️ Inserisci il nome del prodotto', 'error');
-                return;
-            }
-            if (!prezzo || parseFloat(prezzo) <= 0) {
-                addDebugLog('ERROR', 'Prezzo non valido');
-                mostraRisultato('⚠️ Inserisci un prezzo valido', 'error');
-                return;
-            }
-            if (!quantita || parseInt(quantita) <= 0) {
-                addDebugLog('ERROR', 'Quantità non valida');
-                mostraRisultato('⚠️ Inserisci una quantità valida', 'error');
-                return;
-            }
-
-            addDebugLog('INFO', 'Tentativo di inserimento dati', {
-                dato,
-                nomeProdotto,
-                prezzo,
-                quantita
-            });
-
-            mostraRisultato('⏳ Invio in corso...', 'loading');
-
-            try {
-                const { data, error } = await supabase
-                    .from('eventi')
-                    .insert([{ 
-                        dato: dato,
-                        nome_prodotto: nomeProdotto,
-                        prezzo: parseFloat(prezzo),
-                        quantita: parseInt(quantita)
-                    }])
-                    .select();
-
-                if (error) {
-                    throw error;
-                }
-
-                if (data && data.length > 0) {
-                    const evento = data[0];
-                    const totale = evento.prezzo * evento.quantita;
+                if (response.ok) {
+                    // Successo
+                    successMessage.style.display = 'block';
+                    document.getElementById('contactForm').reset();
                     
-                    addDebugLog('SUCCESS', 'Dati inseriti correttamente', evento);
-                    
-                    const messaggioSuccesso = `
-                        ✅ <strong>Prodotto salvato con successo!</strong><br><br>
-                        <strong>Dettagli:</strong><br>
-                        📋 Evento: ${evento.dato}<br>
-                        🏷️ Prodotto: ${evento.nome_prodotto}<br>
-                        💰 Prezzo: €${evento.prezzo.toFixed(2)}<br>
-                        📦 Quantità: ${evento.quantita}<br>
-                        💵 Totale: €${totale.toFixed(2)}<br>
-                        🆔 ID: ${evento.id}<br>
-                        📅 Data: ${new Date(evento.created_at).toLocaleString('it-IT')}
-                    `;
-                    
-                    mostraRisultato(messaggioSuccesso, 'success');
-                    resetForm();
+                    // Nascondi il messaggio dopo 5 secondi
+                    setTimeout(() => {
+                        successMessage.style.display = 'none';
+                    }, 5000);
+                } else {
+                    throw new Error('Errore nel server');
                 }
 
             } catch (error) {
+                alert('Errore durante l\'invio dei dati: ' + error.message);
                 console.error('Errore:', error);
-                addDebugLog('ERROR', `Errore durante l'inserimento: ${error.message}`, error);
-                mostraRisultato(
-                    `❌ <strong>Errore:</strong> ${error.message}<br>
-                     <small>Controlla la console del browser per dettagli (F12)</small>`,
-                    'error'
-                );
+            } finally {
+                // Riabilita il pulsante
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Invia Dati';
             }
         }
-
-        // FUNZIONE PER MOSTRARE RISULTATI
-        function mostraRisultato(messaggio, tipo) {
-            const risultatoDiv = document.getElementById('risultato');
-            risultatoDiv.innerHTML = messaggio;
-            risultatoDiv.className = tipo;
-        }
-
-        // FUNZIONE PER RESETTARE IL FORM
-        function resetForm() {
-            // Mantieni i valori di test per debug
-            // document.getElementById('datoInput').value = '';
-            // document.getElementById('nomeProdotto').value = '';
-            // document.getElementById('prezzo').value = '';
-            // document.getElementById('quantita').value = '1';
-        }
-
-        // INIZIALIZZAZIONE
-        document.addEventListener('DOMContentLoaded', function() {
-            addDebugLog('INFO', 'Applicazione inizializzata');
-            addDebugLog('INFO', 'Supabase client configurato', {
-                url: supabaseUrl,
-                keyPresent: !!supabaseKey
-            });
-            
-            // Test automatico della connessione al caricamento
-            setTimeout(() => {
-                testConnessione();
-            }, 500);
-        });
-
-        // AGGIUNGI EVENT LISTENER PER INVIO CON ENTER
-        document.addEventListener('keypress', function(event) {
-            if (event.key === 'Enter') {
-                inserisciEvento();
-            }
-        });
-
     </script>
 </body>
 </html>
